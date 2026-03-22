@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NY Real Estate Exam Quiz</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+
+        /* Tab Bar */
+        .tab-bar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: white;
+            border-bottom: 1px solid #e5e7eb;
+            overflow-x: auto;
+            display: flex;
+            gap: 0;
+        }
+
+        .tab-button {
+            padding: 12px 20px;
+            border: none;
+            background: white;
+            cursor: pointer;
+            white-space: nowrap;
+            border-bottom: 3px solid transparent;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .tab-button.active {
+            border-bottom-color: currentColor;
+        }
+
+        .tab-button .badge {
+            display: inline-block;
+            margin-left: 6px;
+            font-size: 12px;
+            background: #f0f0f0;
+            padding: 2px 6px;
+            border-radius: 10px;
+        }
+
+        .tab-button.tab-1 { color: #4f46e5; }
+        .tab-button.tab-1.active { background: #f0f4ff; }
+        .tab-button.tab-2 { color: #0e7490; }
+        .tab-button.tab-2.active { background: #f0fdfa; }
+        .tab-button.tab-3 { color: #7e22ce; }
+        .tab-button.tab-3.active { background: #faf5ff; }
+        .tab-button.tab-4 { color: #059669; }
+        .tab-button.tab-4.active { background: #f0fdf4; }
+        .tab-button.tab-5 { color: #e11d48; }
+        .tab-button.tab-5.active { background: #fff1f6; }
+        .tab-button.tab-review { color: #d97706; }
+        .tab-button.tab-review.active { background: #fffbf0; }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 24px;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Exam Header */
+        .exam-header {
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 2px solid #e5e7eb;
+            background-color: #ffffff;
+        }
+
+        .tab-1 .exam-header { border-left: 6px solid #4f46e5; }
+        .tab-2 .exam-header { border-left: 6px solid #0e7490; }
+        .tab-3 .exam-header { border-left: 6px solid #7e22ce; }
+        .tab-4 .exam-header { border-left: 6px solid #059669; }
+        .tab-5 .exam-header { border-left: 6px solid #e11d48; }
+        .tab-review .exam-header { border-left: 6px solid #d97706; }
+
+        .exam-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 12px;
+        }
+
+        .exam-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 16px;
+        }
+
+        .stat-item {
+            background-color: #f9fafb;
+            border: 1px solid #e5e7eb;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            margin-top: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: #4f46e5;
+            transition: width 0.3s;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .control-button {
+            padding: 10px 16px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .control-button:hover {
+            background: #f9fafb;
+        }
+
+        .reset-button {
+            background: #fee2e2;
+            color: #dc2626;
+            border-color: #fca5a5;
+        }
+
+        .reset-button:hover {
+            background: #fecaca;
+        }
+
+        .filter-pills {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .filter-pill {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .filter-pill.active {
+            background: #333;
+            color: white;
+            border-color: #333;
+        }
+
+        .search-box {
+            margin-bottom: 16px;
+        }
+
+        .search-box input {
+            width: 100%;
+            max-width: 400px;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        /* Questions */
+        .questions-container {
+            display: grid;
+            gap: 20px;
+        }
+
+        .question-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .question-card.hidden {
+            display: none;
+        }
+
+        .question-header {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .question-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+
+        .badge-unanswered { background: #6b7280; }
+        .badge-correct { background: #10b981; }
+        .badge-incorrect { background: #ef4444; }
+
+        .question-number {
+            font-weight: 600;
+            color: #4b5563;
+            flex-shrink: 0;
+        }
+
+        .question-text {
+            font-size: 16px;
+            font-weight: 500;
+            margin-bottom: 16px;
+            line-height: 1.5;
+        }
+
+        .options {
+            display: grid;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .option-button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+            text-align: left;
+        }
+
+        .option-button:hover {
+            border-color: #9ca3af;
+            background: #f9fafb;
+        }
+
+        .option-button.selected {
+            border-color: #6366f1;
+        }
+
+        .option-button.correct {
+            border-color: #10b981;
+            background: #f0fdf4;
+        }
+
+        .option-button.incorrect {
+            border-color: #ef4444;
+            background: #fef2f2;
+        }
+
+        .option-letter {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #f3f4f6;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .option-button.selected .option-letter {
+            background: #6366f1;
+            color: white;
+        }
+
+        .option-button.correct .option-letter {
+            background: #10b981;
+            color: white;
+        }
+
+        .option-button.incorrect .option-letter {
+            background: #ef4444;
+            color: white;
+        }
+
+        .dont-know-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 10px;
+            border: 2px dashed #9ca3af;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #6b7280;
+            font-size: 14px;
+            transition: all 0.2s;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .dont-know-button:hover {
+            border-color: #6b7280;
+            background: #f9fafb;
+        }
+
+        .dont-know-button.answered {
+            border-style: solid;
+            border-color: #ef4444;
+            background: #fef2f2;
+            color: #dc2626;
+        }
+
+        .feedback {
+            margin-top: 12px;
+            padding: 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .feedback.correct {
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .feedback.incorrect {
+            background: #fef2f2;
+            color: #991b1b;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .global-controls {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .reset-all-button {
+            padding: 12px 20px;
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .reset-all-button:hover {
+            background: #991b1b;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                padding: 16px;
+            }
+
+            .exam-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .search-box input {
+                max-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tab-bar" id="tabBar"></div>
+        <div class="content" id="content"></div>
+    </div>
+
+    <div class="global-controls">
+        <button class="reset-all-button" onclick="app.resetAll()">Reset All</button>
+    </div>
+
+    <script>
+        const app = {
+            exams: [
+                {
+                    id: 'exam1',
+                    name: 'Exam 1 (Final A)',
+                    color: '#4f46e5',
+                    themeClass: 'tab-1',
+                    questions: [
+  { id: 1, q: "A property manager or property management firm is usually a _____ agent.", options: ["general", "principal", "special", "universal"], answer: 0 },
+  { id: 2, q: "What is the minimum age to apply for a New York real estate broker's license?", options: ["18", "19", "20", "21"], answer: 2 },
+  { id: 3, q: "Regulation 175.7 of the New York codified rules requires agents to make clear for which party they are acting and to not", options: ["accept compensation from more than one party, unless disclosed and consented.", "act as a dual agent in transactions within the same brokerage.", "disclose information deemed as confidential in nature.", "represent other parties who would have conflicting interests."], answer: 0 },
+  { id: 4, q: "The government entity that insures mortgage loans is", options: ["Fannie Mae.", "Freddie Mac.", "Ginnie Mae.", "the FHA."], answer: 3 },
+  { id: 5, q: "A seller has enlisted the services of a broker. The relationship between the broker and the seller is best described as what type of agency?", options: ["broker's", "designated", "single", "subagency"], answer: 2 },
+  { id: 6, q: "If a salesperson is taking a listing and the seller states he wishes to sell only to members of a particular race, the salesperson should", options: ["comply with the seller's wishes.", "determine the present racial mix in the neighborhood before agreeing.", "refuse to take the listing.", "take the listing but ignore the seller's request."], answer: 2 },
+  { id: 7, q: "A real estate salesperson has an agency relationship with a buyer as a non-exclusive buyer's agent. However, the buyer has purchased a property from another brokerage. The agency relationship with the first agent terminated without breach due to", options: ["accomplishment of purpose.", "operation of law.", "rejection.", "renunciation."], answer: 0 },
+  { id: 8, q: "In designated agency, the parties who are represented are giving up", options: ["advocacy in negotiating.", "disclosure of latent defects.", "the agent's obedience.", "the broker's undivided loyalty."], answer: 3 },
+  { id: 9, q: "Easement by _____ is created by law when land is divided, and there is a long-standing apparent use reasonably necessary for the enjoyment of the land.", options: ["condemnation", "express grant", "implication", "necessity"], answer: 2 },
+  { id: 10, q: "A cooperating broker who procures a buyer in a transaction", options: ["becomes a broker's agent of the listing broker.", "could be acting as a buyer's agent or a subagent.", "is a dual agent.", "is designated to represent the buyer by the listing broker."], answer: 1 },
+  { id: 11, q: "Variances and special use permits are issued by a(n)", options: ["architectural review board.", "building department.", "planning department.", "zoning board of appeals."], answer: 3 },
+  { id: 12, q: "In New York State, property taxes are expressed as $_____ per $_____ of assessed value.", options: ["$1/$100", "$1/$1,000", "$1/$5,000", "$5/$10,000"], answer: 1 },
+  { id: 13, q: "When a licensee works for a particular party, it is a(n) _____ relationship.", options: ["administrative", "fiduciary", "supervisory", "transactional"], answer: 1 },
+  { id: 14, q: "Who evaluates a loan application to determine its risk level for a lender or investor?", options: ["Mortgage broker", "Real estate salesperson", "Title company representative", "Underwriter"], answer: 3 },
+  { id: 15, q: "Which would be considered a unilateral agreement?", options: ["buyer brokerage agreement", "exclusive agency listing agreement.", "exclusive right to sell listing agreement.", "open listing agreement"], answer: 3 },
+  { id: 16, q: "Liquidity is the ability, without the loss of principle, to convert an asset into cash", options: ["quickly.", "over-time.", "slowly.", "steadily."], answer: 0 },
+  { id: 17, q: "Which is NOT an example of involuntary alienation?", options: ["adverse possession", "death", "eminent domain", "natural processes"], answer: 1 },
+  { id: 18, q: "A tenant who holds a temporary but exclusive possessory interest in a property has a(n)", options: ["freehold estate.", "leasehold estate.", "life estate.", "reversionary interest."], answer: 1 },
+  { id: 19, q: "In a dual agency relationship, whom does the salesperson represent?", options: ["a third party", "both buyer and seller", "only the buyer", "only the seller"], answer: 1 },
+  { id: 20, q: "Which would be considered an estate at will?", options: ["cooperative", "life estate", "open-ended lease", "time share"], answer: 2 },
+  { id: 21, q: "Once the parties to a contract have fully performed their contractual obligations, the contract is considered", options: ["executed.", "fulfilled.", "transferred.", "void."], answer: 0 },
+  { id: 22, q: "An individual has completed the required pre-licensing coursework to become a real estate salesperson. In order to take the New York State licensing examination, he needs to", options: ["call the exam center to schedule an appointment to take it.", "complete an application and have his sponsoring broker submit it to the exam center.", "find out when the examinations are held and walk into a center on the testing day.", "schedule an appointment online to take the examination."], answer: 3 },
+  { id: 23, q: "Which is NOT a license category in New York?", options: ["Associate Broker", "Broker", "Office Manager", "Salesperson"], answer: 2 },
+  { id: 24, q: "A property's _____ is the amount a ready, willing, and able buyer agrees to pay for a property and a seller agrees to accept under the terms of the transaction.", options: ["cost", "price", "worth", "value"], answer: 1 },
+  { id: 25, q: "Documents, provided by the sponsor, that offer detailed information about a condominium project are known as", options: ["board packages.", "condominium declarations.", "offering plans.", "the prospectus."], answer: 2 },
+  { id: 26, q: "The Residential Lead-based Paint Hazard Reduction Act", options: ["allows no exemptions to the lead-based paint disclosure rules.", "requires sellers and landlords to disclose known lead paint hazards in certain residences built before 1978.", "requires sellers to disclose known lead paint hazards all properties built before 1988.", "requires sellers to submit paint chips to a laboratory for testing."], answer: 1 },
+  { id: 27, q: "A full covenant and warranty deed contains warranties, which are", options: ["legal promises.", "non-binding agreements.", "recommended actions.", "unenforceable in a court of law."], answer: 0 },
+  { id: 28, q: "Government regulations that specify minimum construction and building standards to safeguard health, safety, and welfare of the public are known as", options: ["buffer zones.", "building codes.", "deed restrictions.", "property assessments."], answer: 1 },
+  { id: 29, q: "The representation of a party in a real estate transaction is called a(n) _____ relationship.", options: ["agency", "capital", "principal", "temporary"], answer: 0 },
+  { id: 30, q: "When investors analyze a potential investment by subtracting the expenses incurred by the business or property from the revenue generated by it, they are determining the", options: ["gross revenue.", "method of depreciation.", "net operating income.", "taxable cash flow."], answer: 2 },
+  { id: 31, q: "What is the actual lawful ownership of real property, referring to the holding of the bundle of rights, known as?", options: ["deed", "mortgage", "title", "transference"], answer: 2 },
+  { id: 32, q: "Which is NOT a type of construction framing?", options: ["balloon", "mansard", "platform", "post and beam"], answer: 1 },
+  { id: 33, q: "A geographic area designated to pay for the infrastructure costs of specific projects are known as", options: ["economic development zones.", "limited common areas.", "special assessment districts.", "urban renewal zones."], answer: 2 },
+  { id: 34, q: "The nation's largest investor in residential mortgages is", options: ["Fannie Mae.", "Freddie Mac.", "Ginnie Mae.", "SONYMA."], answer: 0 },
+  { id: 35, q: "In New York, when must real estate licensees obtain a special license to sell commercial property?", options: ["When the sale involves property priced at more than $1 million.", "If they have been licensed in residential sales for less than two years.", "If they are age 35 and younger.", "Never. The sale of commercial property does not require a special real estate license."], answer: 3 },
+  { id: 36, q: "In an agency relationship, the principal with whom an agent has a fiduciary obligation is known as the", options: ["client.", "customer.", "patron.", "shopper."], answer: 0 },
+  { id: 37, q: "Two main types of real estate security instruments are", options: ["contracts and leases.", "currency and government bonds.", "mortgages and trust deeds.", "stock options and annuities."], answer: 2 },
+  { id: 38, q: "In 1968, as a method to obtain property insurance, a FAIR plan was created by the", options: ["Coastal Market Assistance Program.", "National Flood Insurance Program.", "New York Department of Insurance.", "New York Property Insurance Underwriting Association."], answer: 3 },
+  { id: 39, q: "What type of market factor is the principle of supply and demand?", options: ["broad", "contributory", "social", "specific"], answer: 0 },
+  { id: 40, q: "For loans through Fannie Mae, spousal income can be included in the total household income if the", options: ["borrower and the spouse have been married at least five years.", "borrower's income is less than the spouse's income.", "spouse will be a co-borrower on the loan.", "spouse's employment is at least 30 hours per week."], answer: 2 },
+  { id: 41, q: "A signed listing agreement between a broker and a seller is an example of what type of agency?", options: ["expressed", "implied", "ostensible", "ratification"], answer: 0 },
+  { id: 42, q: "Co-op requirements regarding pets and noise regulation are governed by the", options: ["board package.", "by-laws.", "house rules.", "offering statement."], answer: 2 },
+  { id: 43, q: "Expense(s) considered for determining the housing expense ratio for FHA qualifying standards include", options: ["depreciation.", "repairs and maintenance.", "taxes and insurance.", "utilities."], answer: 2 },
+  { id: 44, q: "A form of administrative relief that allows property to be used in a way that does not comply with the literal requirements of the zoning ordinance is a(n)", options: ["appurtenance.", "cluster.", "subdivision.", "variance."], answer: 3 },
+  { id: 45, q: "Ownership in severalty can be categorized into ownership by", options: ["assemblage", "associations", "individuals", "municipalities"], answer: 2 },
+  { id: 46, q: "Deed restrictions are provisions that apply to current property owners and", options: ["are regulated by a local jurisdiction.", "can be altered by the owner at any time.", "extinguish upon transfer.", "follow the chain of title in future transfers."], answer: 3 },
+  { id: 47, q: "What type of insurance policy covers a direct loss to physical property as well as an indirect loss that results because the insured party cannot use the property after it is damaged?", options: ["comprehensive", "dwelling", "liability", "ordinance"], answer: 1 },
+  { id: 48, q: "In New York City, who typically prepares a sales contract?", options: ["Buyer's attorney", "Buyer's broker", "Seller's attorney", "Seller's broker"], answer: 2 },
+  { id: 49, q: "In New York, General Business law 36-B specifies a warranty for new construction that covers", options: ["one year for foundation components.", "one year for workmanship.", "five years for plumbing, heating, electrical, cooling and ventilation systems.", "nine years for material defects."], answer: 1 },
+  { id: 50, q: "Wages, salaries, commissions, and bonuses are considered _____ income.", options: ["active", "passive", "portfolio", "substantial"], answer: 0 },
+  { id: 51, q: "Which does NOT require disclosure?", options: ["hazardous material contamination", "previous pest infestations", "smoke damage", "violent death occurring on the property"], answer: 3 },
+  { id: 52, q: "Which phrase is acceptable in advertising property?", options: ['"Adult community"', '"Close to St. James Catholic Church"', '"Perfect for couples just starting out"', '"Wheelchair accessible front entry"'], answer: 3 },
+  { id: 53, q: "Which is a common type of commercial lease for a property in a retail environment?", options: ["fixed", "gross", "percentage", "pro-rata"], answer: 2 },
+  { id: 54, q: "Which characteristic of real property refers to the fact that every parcel of land is different?", options: ["homogeneity", "progression", "scarcity", "uniqueness"], answer: 3 },
+  { id: 55, q: "Which is NOT considered a protected class in New York State?", options: ["gender", "marital status", "lawful occupation", "military status"], answer: 2 },
+  { id: 56, q: "Extreme lending is when", options: ["additional points are paid to the lender to lower the interest rate.", "an above prime interest rate is paid because of bad credit.", "borrowers have significantly high debt in relationship to income.", "one party agrees to take over payments for another party's debt."], answer: 2 },
+  { id: 57, q: "Easement by _____ is created by open and notorious, hostile and adverse use of another person's land for at least 10 years.", options: ["condemnation", "express grant", "necessity", "prescription"], answer: 3 },
+  { id: 58, q: "A real estate agent encouraged his clients, an African-American couple, to look at homes in a particular subdivision because it is a predominately-black neighborhood. This is an example of", options: ["blockbusting.", "profiling.", "redlining.", "steering."], answer: 3 },
+  { id: 59, q: "Which type of co-ownership requires the unities of possession, interest, time, and title?", options: ["freehold estate", "joint tenancy", "tenancy in common", "tenancy by the entirety"], answer: 1 },
+  { id: 60, q: "A municipal agency is what type of agency?", options: ["federal", "international", "local", "state"], answer: 2 },
+  { id: 61, q: "The final phase in a real estate transaction is the title", options: ["closing.", "deposition.", "meeting of the minds.", "turnover."], answer: 0 },
+  { id: 62, q: "In New York State, real property taxes are based on", options: ["how long the owner has resided in the home.", "the community's average income.", "the value of real property.", "what the homeowner paid for the property less PMI."], answer: 2 },
+  { id: 63, q: "New York law requires that upon the sale of residence, the property must be", options: ["absent of all lead based paint.", "equipped with an operable CO detector.", "inspected by a licensed mold inspector.", "inspected by the EPA for methamphetamine contamination."], answer: 1 },
+  { id: 64, q: "When higher income levels are taxed at a higher rate, it is what type of tax?", options: ["equitable", "periodic", "progressive", "residual"], answer: 2 },
+  { id: 65, q: "Short term capital gains and losses are generated by", options: ["donating a security to charity.", "holding a capital asset for less than five years.", "selling a business asset held less than one year.", "selling a capital asset held less than one year."], answer: 3 },
+  { id: 66, q: "What contains financial statements, employment verifications, and letters of reference used in the approval process for living in a co-op?", options: ["alteration agreement", "board package", "by-laws", "share application"], answer: 1 },
+  { id: 67, q: "When a commercial building is rated A, B, C, or D; the designation describes the building's", options: ["class.", "floor plan.", "lease options.", "tenancy."], answer: 0 },
+  { id: 68, q: "Which lien is superior to all other types of liens?", options: ["estate tax", "mechanic's", "mortgage", "property tax"], answer: 3 },
+  { id: 69, q: "The difference between rentable square footage and usable square footage is the _____ factor.", options: ["deficit", "loss", "reduction", "risk"], answer: 1 },
+  { id: 70, q: "When debt is used to finance an investment, the investor is taking on what type of risk?", options: ["business", "financial", "inflation", "tax"], answer: 1 },
+  { id: 71, q: "Which is NOT an example of an assessable improvement?", options: ["addition of a fireplace", "addition of storm windows", "construction of a tool shed", "conversion of a garage to a finished room"], answer: 1 },
+  { id: 72, q: "Tax laws and environmental regulations are an example of which risk?", options: ["business", "inflation", "legislative", "liquidity"], answer: 2 },
+  { id: 73, q: "Which cost is NOT one a seller usually pays at closing?", options: ["Attorney's fee", "Broker's commission", "Home inspection fee", "Transfer taxes"], answer: 2 },
+  { id: 74, q: "Income generated through parking, storage spaces, and laundry and vending machines is often categorized as what type of income?", options: ["fixed", "miscellaneous", "subsequent", "subsidized"], answer: 1 },
+  { id: 75, q: "A property manager uses a stabilized budget, which is income and expenses averaged over", options: ["one month.", "one year.", "five years.", "ten years."], answer: 2 },
+                    ]
+                },
+                {
+                    id: 'exam2',
+                    name: 'Exam 2 (Final B)',
+                    color: '#0e7490',
+                    themeClass: 'tab-2',
+                    questions: [
+  { id: 1, q: "The address that an occupant declares as his primary residence is the location where he", options: ["files income tax.", "earns regular income.", "executes legal documents.", "maintains banking relationships."], answer: 0 },
+  { id: 2, q: "An example of a homestead property includes", options: ["a privately owned laundromat.", "a gas station.", "an owner-occupied, separately-assessed mobile home.", "a vacant lot."], answer: 2 },
+  { id: 3, q: "A broker received a commission of $3,775. Later, this transaction was found to be in violation of license law. In addition to having her license suspended, the broker may be held liable for up to", options: ["$3,775.", "$7,750.", "$11,325.", "$15,100."], answer: 3 },
+  { id: 4, q: "Privately-owned land can be obtained by the government for public use through", options: ["master planning.", "eminent domain.", "condemnation.", "development rights."], answer: 1 },
+  { id: 5, q: "Periodic principal and interest payments a borrower is required to pay back on a monthly basis are referred to as", options: ["debt service.", "loss.", "leverage.", "interest."], answer: 0 },
+  { id: 6, q: "The act of conveying real estate ownership is called", options: ["alienation.", "accession.", "reversion.", "delivery."], answer: 0 },
+  { id: 7, q: "In dual agency, the two principals give up", options: ["accountability and care.", "undivided loyalty and full disclosure.", "care and obedience.", "care and undivided loyalty."], answer: 1 },
+  { id: 8, q: "Covenants, conditions, and restrictions (CC&Rs) are set by the", options: ["courts during foreclosure proceedings.", "agreements between a broker and a seller.", "bylaws of a condominium.", "mortgage lenders on conventional loans."], answer: 2 },
+  { id: 9, q: "The law of agency can be confusing to the general public, so it is the broker's responsibility to", options: ["make certain that sellers do not violate fair housing laws.", "refrain from the inadvertent practice of law.", "make relationships clear to all parties in a transaction.", "explain the education and licensing requirements of brokers."], answer: 2 },
+  { id: 10, q: "What must a candidate do prior to being issued a real estate salesperson's license?", options: ["Provide proof of financial stability", "Produce a contract of employment with a broker", "Complete a 75-hour qualifying course", "Complete two years of college or the equivalent"], answer: 2 },
+  { id: 11, q: "The first step that a taxing district should take when setting a real estate taxing rate is to", options: ["identify how much money will be available from revenue sharing.", "determine how much money must be raised through taxes.", "adopt a budget.", "issue homestead exemptions."], answer: 2 },
+  { id: 12, q: "According to New York law, a grant of real property would automatically convey", options: ["fee simple ownership.", "fee on condition.", "estate at will.", "a life estate."], answer: 0 },
+  { id: 13, q: "A transaction involving the sale or rental of a building that contains four or fewer units intended for dwelling purposes is called a", options: ["dwelling transaction.", "residential transaction.", "single-family transaction.", "substantive transaction."], answer: 1 },
+  { id: 14, q: "A type of lien that supersedes and has priority over all other recorded liens is", options: ["utilities and water.", "real estate tax.", "a judgment lien.", "a mechanic's lien."], answer: 1 },
+  { id: 15, q: "A prospective tenant trips and breaks her leg while viewing a vacant apartment. What type of insurance covers the expenses related to this injury?", options: ["Liability", "Casualty", "Fire and hazard", "Contents and personal property"], answer: 0 },
+  { id: 16, q: "The official document a broker would check to find out how a property is assessed for tax purposes is", options: ["a tax report.", "an assessment roll.", "the property archives.", "the state census."], answer: 1 },
+  { id: 17, q: "A deed is a written instrument by which an owner of real estate", options: ["removes liens from a property.", "acknowledges a contractual agreement.", "pledges property as security for a loan.", "conveys property from one person to another."], answer: 3 },
+  { id: 18, q: "Denying applications for mortgage loans in specific areas without regard to the economic qualifications of the applicant is known as", options: ["discrimination.", "blockbusting.", "steering.", "redlining."], answer: 3 },
+  { id: 19, q: "Tax consequences resulting from a property's income operations establish a property's", options: ["market value.", "tax value.", "cost value.", "book value."], answer: 3 },
+  { id: 20, q: "In addition to fee simple, qualified (determinable) fee, and fee on condition, what is the other freehold estate recognized in New York?", options: ["Life estates", "Estate at sufferance", "Estate for years", "Periodic estates"], answer: 0 },
+  { id: 21, q: "Which of the following describes commingling?", options: ["Mixing the broker's funds with escrow deposits", "Soliciting the services of another broker's salespersons", "Failing to keep separate escrow accounts for different clients", "Promoting business at social gatherings."], answer: 0 },
+  { id: 22, q: "A prospective buyer says one of the following statements to a broker. Which one MOST clearly indicates that the conversation would be considered a first substantive contact?", options: ["\"I'm interested in the sellers' house because it's close to my kids' school.\"", "\"What is the length of time that an average house in this area is on the market before it sells?\"", "\"I'd like to look at homes near Sand Prairie Middle School.\"", "\"Can you tell me how working with you will increase my chances of getting the best house that will meet my needs?\""], answer: 0 },
+  { id: 23, q: "Which of the following is TRUE regarding real estate sales contracts?", options: ["The state of New York prohibits the use of preprinted forms.", "The state of New York allows brokers to fill in the blanks.", "The state of New York requires that the REALTORS® form be used.", "The state of New York requires preparation by the seller's attorney."], answer: 1 },
+  { id: 24, q: "Anticipated revenues and expenses should be forecasted by a property manager in", options: ["an operating budget.", "a red herring.", "a prospectus.", "a management agreement."], answer: 0 },
+  { id: 25, q: "For a licensee to legally accept a commission for a transaction, he needs to maintain a valid real estate license", options: ["from the start of the transaction until a contract is signed.", "at the time the transaction is completed.", "from the start of the transaction up to the point that all compensation is received.", "at the time all compensation is received."], answer: 2 },
+  { id: 26, q: "Which of the following mortgage loans has an interest rate that may change at specified intervals?", options: ["Adjustable-rate mortgage (ARM)", "Pledged account", "Shared equity", "Growing equity"], answer: 0 },
+  { id: 27, q: "What is used to determine present value of an income stream that a property produces?", options: ["Leverage", "Capitalization", "Cost", "Liquidity"], answer: 1 },
+  { id: 28, q: "Private property may be acquired by the government without compensating an owner fairly through", options: ["taking.", "escheat.", "condemnation.", "substitution."], answer: 2 },
+  { id: 29, q: "The fees charged by mortgage brokers reflected in fee agreements usually consist of a flat fee or", options: ["an amount allowable under HUD.", "an amount agreed to by the buyer and seller.", "a percentage of borrowed amount.", "a percentage of sales price."], answer: 2 },
+  { id: 30, q: "What supports a building's floors, ceiling, and roof?", options: ["Ledger boards", "Bearing walls", "Support beams", "Sole plates"], answer: 1 },
+  { id: 31, q: "A property's location is called its", options: ["zoning.", "plottage.", "situs.", "assemblage."], answer: 2 },
+  { id: 32, q: "The MOST common types of foundations are", options: ["stone masonry and prefab.", "concrete slab and stone masonry.", "concrete slab and pier and beam.", "pier and beam and platform frame."], answer: 2 },
+  { id: 33, q: "What type of loans do mortgage brokers usually assist borrowers in obtaining?", options: ["FHA loans", "VA loans", "Nonconventional loans", "Nonconforming loans"], answer: 3 },
+  { id: 34, q: "In a buyer broker agreement, the buyer is", options: ["a client.", "a customer.", "a partner.", "not owed fiduciary duties."], answer: 0 },
+  { id: 35, q: "What value suggests the probable price for which a property will sell?", options: ["Listing price", "Market value", "Appraised value", "Liquidation value"], answer: 1 },
+  { id: 36, q: "An investor is afraid that he might lose the sizeable cash down payment he made on a property. This is called", options: ["financial risk.", "capital risk.", "static risk.", "business risk."], answer: 1 },
+  { id: 37, q: "A seller should obtain a novation when the", options: ["property is sold subject to a mortgage.", "seller accepts a land contract.", "buyer obtains an FHA mortgage.", "buyer assumes the seller's mortgage."], answer: 3 },
+  { id: 38, q: "What is applied directly to the wall studs of an exterior wall surface of a house?", options: ["Flashing", "Framing", "Siding", "Sheathing"], answer: 3 },
+  { id: 39, q: "The Supreme Court decision in Jones v. Alfred H. Mayer Company held that the Civil Rights Act of 1866 prohibits", options: ["racial discrimination.", "gender discrimination.", "discrimination based on sexual orientation.", "discrimination based on national origin."], answer: 0 },
+  { id: 40, q: "According to real estate law, an agent is a", options: ["legal relationship.", "recognized expert.", "type of business.", "licensed individual."], answer: 0 },
+  { id: 41, q: "An independent contractor status of a real estate salesperson is generally NOT challenged by the Internal Revenue Service (IRS) under the safe-harbor guideline if the salesperson", options: ["receives benefits from the supervising broker.", "has income based solely on sales output.", "does not work out of a home office.", "works a schedule planned by the broker."], answer: 1 },
+  { id: 42, q: "What is referred to as the practice of encouraging potential homebuyers to search homes in communities where their race is the majority?", options: ["Blockbusting", "Redlining", "Steering", "Price-fixing"], answer: 2 },
+  { id: 43, q: "What is the difference between rentable area and usable area in rental property?", options: ["Loss factor", "Space quotient", "Add-on factor", "Negative zone"], answer: 0 },
+  { id: 44, q: "What is a broker's commission if he is to receive a 6% commission on the sale of a $375,000 home?", options: ["$2,250", "$6,250", "$22,500", "$62,500"], answer: 2 },
+  { id: 45, q: "Under a ground lease,", options: ["a landowner leases land to a tenant who agrees to erect a building on it.", "the property's oil and gas rights are leased to another.", "the property's mineral rights are leased to another.", "the tenant pays rent per square foot of land used rather than by a unit in a building."], answer: 0 },
+  { id: 46, q: "In the year that taxes are paid, expenses that homeowners can deduct from their federal income tax bill are", options: ["ad valorem taxes and closing costs.", "ad valorem taxes and special tax assessments.", "special assessments and legal fees.", "utilities and maintenance fees."], answer: 1 },
+  { id: 47, q: "A county's infrastructure includes", options: ["roads and schools.", "location and climate.", "population and growth rate.", "stores and factories."], answer: 0 },
+  { id: 48, q: "Who is responsible for determining tax assessments?", options: ["Financial agent", "Tax assessor", "City treasurer", "Tax collector"], answer: 1 },
+  { id: 49, q: "Three boys were stated in their uncle's will that his house should go to them when he died. The will did NOT state how the home would be titled. In New York, their ownership automatically creates", options: ["a trust.", "a partnership.", "a tenancy in common.", "joint tenants."], answer: 2 },
+  { id: 50, q: "Changes in zoning might allow for a mixed-use high-rise to be built in place of an existing parking lot. Once the zoning increase takes effect, the existing use of the property ceases to be the", options: ["highest and best use.", "utility.", "conformity.", "replacement cost."], answer: 0 },
+  { id: 51, q: "Property insurance that takes depreciation into account is called", options: ["replacement cost.", "damaged value.", "estimated value.", "actual cash value."], answer: 3 },
+  { id: 52, q: "Peeling or dust from paint are contributing sources of", options: ["radon.", "PCBs.", "lead poisoning.", "asbestosis."], answer: 2 },
+  { id: 53, q: "How is a foreclosure completed?", options: ["Through court proceedings", "Through mortgage bankers or mortgage brokers", "Through brokers for the buyer and seller", "Through a borrower and lender agreement"], answer: 0 },
+  { id: 54, q: "In the creation and delivery of a CMA, the listing agent should", options: ["check her findings with an appraiser.", "hire an appraiser to perform the CMA.", "use comparable sales going back at least five years.", "thoroughly explain what the CMA's outcome means to the owner."], answer: 3 },
+  { id: 55, q: "If a person slips and falls inside a client's business, which insurance will cover the medical expenses incurred?", options: ["Fire and hazard insurance", "Liability insurance", "Casualty insurance", "Contents and personal property insurance"], answer: 1 },
+  { id: 56, q: "Which of the following can be used by a subdivider to regulate the type of building and construction that can be built on the subdivision's lots?", options: ["Zoning rule", "Building code", "Setback", "Restrictive covenant"], answer: 3 },
+  { id: 57, q: "In which type of relationship is an agent hired and given the responsibility of representing an individual's interests?", options: ["Principal", "Trustor", "Designated", "Fiduciary"], answer: 0 },
+  { id: 58, q: "A neighbor's garage straddles the property line onto another's property. What section of law pertains to the lack of assertion of one's rights when there is an encroachment?", options: ["Statute of limitations", "Parol evidence rule", "Doctrine of laches", "New York General Obligations Law"], answer: 2 },
+  { id: 59, q: "Because the amount of tax is determined by the value of the property being taxed, it is known as", options: ["excise tax.", "value-added tax.", "wealth tax.", "ad valorem tax."], answer: 3 },
+  { id: 60, q: "At what time must a lender provide a good-faith estimate of likely borrower settlement costs to the borrower as required by the Real Estate Settlement Procedures Act (RESPA)?", options: ["Within three days of settlement", "At the time of settlement", "At the time of loan application or within three business days", "Within 24 hours of settlement"], answer: 2 },
+  { id: 61, q: "Which of the following refers to a parcel of land that has been prepared for construction?", options: ["Survey", "Property", "Site", "Lot"], answer: 2 },
+  { id: 62, q: "At what value has New York law historically mandated that property be assessed for tax purposes?", options: ["Uniform percentage of value", "Discount value", "Half value", "Full value"], answer: 3 },
+  { id: 63, q: "Rebecca asked her neighbor for some advice on preparing her home to sell. Her neighbor, who is a broker, obliged and also gave her some information on seasonal demand in the market. Even though there is no signed agreement, they may have created", options: ["a special agency.", "a universal agency.", "an express agency.", "an implied agency."], answer: 3 },
+  { id: 64, q: "The property manager works on behalf of the property owner as a", options: ["special agent.", "general agent.", "universal agent.", "dual agent."], answer: 1 },
+  { id: 65, q: "What principle refers to an informed investor NOT paying more for a property than it would cost to purchase another property of equal utility?", options: ["Nonhomogeneity", "Substitution", "Replacement", "Uniqueness"], answer: 1 },
+  { id: 66, q: "A condominium board of managers would use money from the condominium's reserve fund for", options: ["replacement of the building's heating system.", "heating and utilities.", "the landscaper and doorman salaries.", "the delinquent mortgage payment of a unit owner."], answer: 0 },
+  { id: 67, q: "A loan that covers multiple lots and is often used to finance subdivision developments is called", options: ["an open-end loan.", "a construction loan.", "a blanket mortgage.", "a wrap-around mortgage."], answer: 2 },
+  { id: 68, q: "Plans and blueprints are scale drawings of buildings and their various components, including", options: ["elevations.", "sections.", "floor plans.", "all of these."], answer: 3 },
+  { id: 69, q: "Who has authority to represent the principal in all matters concerning all transactions that can be delegated?", options: ["Principal agent", "Universal agent", "Primary agent", "General agent"], answer: 1 },
+  { id: 70, q: "What is the asking price for a building that is 185 ft by 60 ft if the seller is asking $145 per square foot?", options: ["$1,035,525", "$1,065,900", "$1,503,000", "$1,609,500"], answer: 3 },
+  { id: 71, q: "Under CERCLA, a landowner may become liable for cost of cleanup", options: ["only for the contamination they create.", "for all future contamination.", "regardless of whether the contamination is the result of the landowner's actions or those of others.", "only if the owner knew of the contamination as the result of an environmental assessment."], answer: 2 },
+  { id: 72, q: "The owner is entitled to all rights in the property of", options: ["an estate for years.", "an estate at sufferance.", "a fee simple estate.", "a qualified fee estate."], answer: 2 },
+  { id: 73, q: "Replacing an old party in an existing contract with a new party is called", options: ["recession.", "novation.", "escape.", "forbearance."], answer: 1 },
+  { id: 74, q: "Where should the Department of Housing and Urban Development (HUD) equal opportunity Fair Housing Poster be displayed?", options: ["Where sellers sign listings", "Where property sales are discussed", "Where a broker conducts business", "Where real estate transactions are closed"], answer: 2 },
+  { id: 75, q: "Every residential lease contains an implied warranty", options: ["of habitability.", "of exclusion.", "of disposition.", "against encumbrances."], answer: 0 },
+                    ]
+                },
+                {
+                    id: 'exam3',
+                    name: 'Exam 3 (Final C)',
+                    color: '#7e22ce',
+                    themeClass: 'tab-3',
+                    questions: [
+  { id: 1, q: "What did the Duncan and Hill vs. Department of State decision restrict real estate licensees from doing?", options: ["Defrauding consumers", "Misrepresenting property", "Not disclosing dual agency", "Practicing law without authorization"], answer: 3 },
+  { id: 2, q: "Deed restrictions say lots in a subdivision must measure at least two acres, but the town allows half-acre lots. Which of the following is TRUE?", options: ["Subdividers must comply with the rules of the town, but developers do not have to comply.", "Individual homeowners can use the rules of the town only if they own fewer than four properties.", "The two-acre restriction can be enforced by neighbors.", "Developers may build on half-acre lots."], answer: 2 },
+  { id: 3, q: "Who is responsible for regulating zoning?", options: ["The environmental conservation board", "The zoning board of appeals", "The state government", "The local municipality"], answer: 3 },
+  { id: 4, q: "Where should a salesperson's license be kept?", options: ["Retained by the principal broker while kept in a safe and accessible place", "In the archives of the local association of REALTORS®", "Displayed on the firm's wall", "In the salesperson's wallet"], answer: 0 },
+  { id: 5, q: "Jim is a broker who chooses to work in the role of a salesperson under the sponsorship and supervision of another broker. He is", options: ["a broker salesperson.", "a senior salesperson.", "an assistant broker.", "an associate broker."], answer: 3 },
+  { id: 6, q: "On the closing statement, the buyer's earnest money deposit would be listed as a", options: ["debit to the buyer.", "debit to the buyer and a credit to the seller.", "credit to the seller.", "credit to the buyer."], answer: 3 },
+  { id: 7, q: "Effective gross income minus operating expenses determines", options: ["net operating income.", "marginal income.", "gross income.", "other income."], answer: 0 },
+  { id: 8, q: "Closing costs on owner-occupied property are expenses that are", options: ["deductible in the year of acquisition.", "deductible up to $2,000.", "depreciated annually.", "not deductible in the year of acquisition."], answer: 3 },
+  { id: 9, q: "The amount of current flowing through electric wiring is", options: ["wattage.", "voltage.", "amperage.", "its electrical charge."], answer: 2 },
+  { id: 10, q: "What does the R-value of insulation refer to?", options: ["Conductivity of cold air", "Resistance to heat transfer", "Speed in warming air", "Strength and flexibility"], answer: 1 },
+  { id: 11, q: "The source of the agent's compensation", options: ["is always the buyer.", "determines agency.", "is determined by agreement.", "is always the seller."], answer: 2 },
+  { id: 12, q: "A written agreement relationship between a buyer or a seller and a real estate broker is referred to as", options: ["special agency.", "express agency.", "universal agency.", "implied agency."], answer: 0 },
+  { id: 13, q: "When a person dies without a will and without identifiable heirs, property passes to the state of New York through the process known as", options: ["escheat.", "devise.", "bequest.", "dedication."], answer: 0 },
+  { id: 14, q: "All documents must show proof of payment of the real estate transfer tax on deeds or the mortgage tax on mortgages before the documents", options: ["can be signed.", "can be sent to the Department of Finance.", "can be assembled by the closing agent for delivery to the buyer.", "will be accepted for recording."], answer: 3 },
+  { id: 15, q: "Property tax exemptions to qualifying homeowners aged 65 and over (the aged exemption) are", options: ["required to be renewed each tax year.", "good for life the life of ownership in that property.", "good for 5 years.", "good for 3 years."], answer: 0 },
+  { id: 16, q: "Agency in a real estate transaction is determined by the", options: ["source of compensation.", "order of events.", "desires of the parties.", "actions of the parties."], answer: 3 },
+  { id: 17, q: "The percentage of profit return that an investor receives on only the cash invested in a property is the", options: ["equity dividend rate.", "marginal rate.", "capitalization rate.", "effective gross income."], answer: 0 },
+  { id: 18, q: "The approval of new construction and remodeling is a duty of the", options: ["architectural review board.", "buildings department.", "planning board.", "city engineer."], answer: 0 },
+  { id: 19, q: "In a cooperative unit, which of the following policy types would BEST apply?", options: ["Renter policy only covering personal property", "Liability", "A basic homeowners' policy like HO-1", "Fire and theft policy"], answer: 0 },
+  { id: 20, q: "When borrowing occurs on real property, the lender will originate the loan amount based upon the", options: ["purchase price or the appraised value, whichever is less.", "purchase price.", "appraised value.", "the assessed value."], answer: 0 },
+  { id: 21, q: "All of the following are terms used in commercial space measurements EXCEPT", options: ["attrition factor.", "rentable area.", "add-on factor.", "carpetable area."], answer: 0 },
+  { id: 22, q: "Undercover investigations to see whether fair housing practices are being followed are sometimes made by", options: ["testers.", "evaluators.", "operatives.", "conciliators."], answer: 0 },
+  { id: 23, q: "Which of the following is a program in place to help individuals obtain affordable insurance?", options: ["National Flood Insurance Program", "Army Corps. of Engineers", "State Insurance Fund", "CERCLA"], answer: 0 },
+  { id: 24, q: "A mill is", options: ["one-tenth of a cent.", "equal to one dollar.", "one-thousandth of a cent.", "one-hundredth of a cent."], answer: 0 },
+  { id: 25, q: "An amount of money, agreed to in advance by buyer and seller, that will serve as total compensation if one party does NOT live up to the contract is", options: ["a breach fee.", "liquidated damages.", "a termination fee.", "a kickout clause or fee."], answer: 1 },
+  { id: 26, q: "Which appraiser may appraise noncomplex one- to four-unit residential real property with a transaction value of less than $1,000,000?", options: ["Appraiser assistant license", "Licensed residential appraiser", "Certified residential appraiser", "Certified general appraiser"], answer: 1 },
+  { id: 27, q: "Which of these is a private restriction on the use of land?", options: ["A deed restriction", "A use restriction", "A zoning restriction", "A private zoning restriction"], answer: 0 },
+  { id: 28, q: "When a salesperson terminates an association with a broker, the", options: ["sponsoring broker will keep the licenses of the terminated individuals.", "new sponsoring broker will file the necessary termination notice.", "salesperson must file the resignation with the DOS.", "supervising broker must file a termination of association notice."], answer: 3 },
+  { id: 29, q: "The primary feature of a license is that", options: ["the license is terminable at the will of the licensor.", "it requires judicial determination.", "the license is terminable at the will of the licensee.", "it provides life-long rights to the licensee."], answer: 0 },
+  { id: 30, q: "Condops were originally created in response to the IRS 80/20 rule, which", options: ["restricted co-ops from achieving active income activity in excess of 20% of their operating budget.", "required co-ops to achieve passive income activity in excess of 20% of their operating budget.", "restricted co-ops from achieving passive income activity in excess of 20% of their operating budget.", "required co-ops to achieve passive income activity in excess of 80% of their operating budget."], answer: 2 },
+  { id: 31, q: "An unlicensed assistant may", options: ["answer a buyer's specific questions about a property.", "hold open houses.", "show property for sale or lease.", "not list or sell property."], answer: 3 },
+  { id: 32, q: "A loan type used by borrowers to obtain additional funds to improve property is", options: ["a blanket mortgage.", "an open-end loan.", "a participation loan.", "an optional-payment mortgage."], answer: 1 },
+  { id: 33, q: "What is the minimum lease term that must be offered to tenants in mobile home parks?", options: ["1 year", "30 days", "18 months", "180 days"], answer: 0 },
+  { id: 34, q: "What is a broker's responsibility during a first substantive contact?", options: ["To disclose relationships", "To define fiduciary duties", "To create express agency", "To obtain a meeting of the minds"], answer: 0 },
+  { id: 35, q: "Who usually establishes deed restrictions?", options: ["The grantee", "The subdivider", "The local government", "The zoning board of appeals"], answer: 1 },
+  { id: 36, q: "Enforcement of the Fair Housing Act is the responsibility of", options: ["Congress.", "HUD.", "the Equal Employment Opportunity Commission.", "the Department of Justice."], answer: 1 },
+  { id: 37, q: "A man owns his home free and clear of encumbrances and has the right to devise it to his son. He owns", options: ["a leasehold.", "a life estate.", "a fee simple estate.", "an estate at will."], answer: 2 },
+  { id: 38, q: "Which of the following BEST describes a mortgage for which a final large principal payment is due?", options: ["Balloon mortgage", "Blanket mortgage", "Open mortgage", "Variable-rate mortgage"], answer: 0 },
+  { id: 39, q: "Which of the following is the usual listing agreement between a seller and a real estate broker?", options: ["Express contract", "Discharge of contract", "Implied contract", "Breach of contract"], answer: 0 },
+  { id: 40, q: "A Phase I Environmental Assessment is", options: ["conducted on every new development regardless of size.", "an investigation conducted by an environmental professional to determine whether hazardous substances are present on the property.", "a study determining if the environment is good for a new development.", "commonly performed before residential property is purchased."], answer: 1 },
+  { id: 41, q: "The deed used to transfer title from one person to another that contains no warranties or covenants is a", options: ["quitclaim deed.", "corporate deed.", "full covenant and warranty deed.", "bargain and sale deed."], answer: 0 },
+  { id: 42, q: "An owner of a life estate has the right to do all of the following EXCEPT", options: ["lease the property.", "reside on the property.", "pass ownership to heirs.", "earn income from the property."], answer: 2 },
+  { id: 43, q: "Which of the following statements about the Internal Revenue Service (IRS) is TRUE?", options: ["It taxes cooperatives as passive investment properties.", "It taxes cooperatives and single homes in the same way.", "It does not tax cooperatives.", "It taxes condominiums as passive investment properties."], answer: 1 },
+  { id: 44, q: "A man earns $40,000 annually on a real estate partnership investment in which he has no day-to-day involvement. How is this income classified?", options: ["Portfolio income", "Active income", "Passive income", "Tax-exempt income"], answer: 2 },
+  { id: 45, q: "An appraisal is", options: ["a supported and defended estimate or opinion of value.", "a CMA.", "completed by a real estate licensee.", "an evaluation through valuation."], answer: 0 },
+  { id: 46, q: "According to the qualifying ratio 28/36, borrowers will be allowed to spend up to 28% of their", options: ["gross monthly income for housing expenses.", "net monthly income for housing expenses.", "income for both housing expenses and other payments on long-term debts.", "income for both housing expenses and credit card debt."], answer: 0 },
+  { id: 47, q: "In a written listing agreement, how is commission determined?", options: ["The commission conforms to the area's customary rate.", "The commission is the amount of money over the net listing amount.", "The rate is the negotiated percentage of the sales price or flat fee.", "The rate is set by law."], answer: 2 },
+  { id: 48, q: "All of the following are considered chattel EXCEPT", options: ["a barn.", "draperies.", "a tractor.", "a trade fixture."], answer: 0 },
+  { id: 49, q: "Other than the mortgage amount that may be assumed, a real estate sale in New York State is subject to what transfer tax?", options: ["10% where the consideration is more than $1,000,000", "$2 per $500 or a fraction thereof of the consideration paid", "$0.55 per $500 or a fraction thereof of the consideration paid", "1% on a sale of less than $500,000"], answer: 1 },
+  { id: 50, q: "A note is a promise to repay a loan and also acts as", options: ["evidence of borrowing.", "collateral.", "proof of insurance.", "ownership."], answer: 0 },
+  { id: 51, q: "What is the annual profit sought by an investor on the overall cost of an acquisition?", options: ["Potential gross income", "Income, rate, and value", "Rate of return/return on investment", "Net operating income"], answer: 2 },
+  { id: 52, q: "Only one floor is built at a time, and each floor serves as a platform for the next story. What style of construction is this called?", options: ["Platform frame construction", "Pier-and-beam construction", "Post-and-beam frame construction", "Balloon frame construction"], answer: 0 },
+  { id: 53, q: "Children may be excluded from certain housing developments intended for", options: ["families with high net worth.", "persons 62 and older.", "persons with disabilities.", "working adults with no children."], answer: 1 },
+  { id: 54, q: "The BEST example of a general agent is an individual who", options: ["has been hired by a commercial property owner to sell a shopping center.", "finances the commercial property owner's expansion of a shopping center and who plans to lease the new units.", "has power of attorney for a commercial property owner.", "is a property manager for a commercial property owner."], answer: 3 },
+  { id: 55, q: "The Real Property Law requires", options: ["that sponsoring brokers supervise their staff at all times, regardless of whether they are employees or independent contractors.", "that the salesperson or associate broker sign an independent contractor agreement.", "that real estate licensees may only work as independent contractors.", "sponsoring brokers to provide healthcare to all sponsored licensees, whether employees or independent contractors."], answer: 0 },
+  { id: 56, q: "Successfully managing retail space such as shopping malls requires", options: ["the manager to just get the vacancies leased regardless of tenant or their business.", "careful selection of the right blend of tenants.", "a background in retail management.", "the CPM designation."], answer: 1 },
+  { id: 57, q: "A leasehold estate that continues for a definite period of time is", options: ["a tenancy at will.", "a tenancy at sufferance.", "an estate for years.", "a periodic estate."], answer: 2 },
+  { id: 58, q: "When mortgage financing is provided, a sum of money set aside to be used later for a particular purpose is called", options: ["a reserve or impound.", "a savings account.", "a checking account.", "none of these."], answer: 0 },
+  { id: 59, q: "Categories of zoning include residential, industrial, agricultural, and", options: ["suburban.", "historic.", "commercial.", "municipal."], answer: 2 },
+  { id: 60, q: "A salesperson sells another firm's listing of a commercial building for $513,500. The 6% commission is split evenly between the two companies. The salesperson received 65% of her office's share. How much does she receive?", options: ["$7,619.75", "$9,283.50", "$10,013.25", "$10,850.00"], answer: 2 },
+  { id: 61, q: "A new-home buyer receives a warranty of", options: ["eight years' protection against defective materials.", "six years' protection against structural defects.", "six years' protection against defective installation of heating systems.", "six years' protection against defective materials."], answer: 1 },
+  { id: 62, q: "The legal description that uses the boundaries and measurements of the land in question is called", options: ["metes and bounds.", "government survey.", "reference of plat map.", "block and lot."], answer: 0 },
+  { id: 63, q: "The maximum rate of interest that may be charged on mortgage loans is set by", options: ["state law.", "federal law.", "local law.", "agreement between the parties."], answer: 0 },
+  { id: 64, q: "Individual retirement account (IRA) funds could potentially benefit first-time homeowners by using the funds", options: ["to make mortgage payments, under any conditions.", "to make mortgage payments up to $5,000, under certain conditions.", "for a down payment of up to $10,000, under certain conditions.", "for down payments, under any conditions."], answer: 2 },
+  { id: 65, q: "Like members of town councils, members of a village board of trustees", options: ["are elected officials.", "are appointed officials.", "are only comprised of attorneys.", "must have previous political experience in order to hold the position."], answer: 0 },
+  { id: 66, q: "Which of the following is NOT a requirement of a valid lease?", options: ["Capacity to contract", "A demising clause", "A duration of at least 18 months", "Description of the premises"], answer: 2 },
+  { id: 67, q: "What does a condominium buyer receive?", options: ["A proprietary lease for the unit", "A deed conveying fee simple ownership of the unit", "A share in the condominium corporation", "A life estate for the common elements"], answer: 1 },
+  { id: 68, q: "A property's future income and expenses are analyzed and determined by using", options: ["a balance sheet.", "a bank reconciliation.", "a pro forma statement.", "a capital gains report."], answer: 2 },
+  { id: 69, q: "Which of the following must meet standards established by the state Department of Health and enforced by the county departments of health?", options: ["On-site sanitary waste system requirements", "The heating and cooling system", "The air quality that will be in the house", "The level of acceptable radon gas level(s)"], answer: 0 },
+  { id: 70, q: "In order to receive a zoning variance, which of the following bodies of government would hear the case?", options: ["First the planning board and then the architectural review board", "Architectural review board", "Planning board", "Zoning board of appeals"], answer: 3 },
+  { id: 71, q: "Once property has been sold at a tax sale, the property owner is", options: ["still responsible for any deficiencies from the tax sale.", "responsible for maintaining insurance on the property until the new owner has a policy in place.", "still under the obligation of the lien as it is placed against the property and the owner.", "usually free of any personal liability for the unpaid taxes."], answer: 3 },
+  { id: 72, q: "Which formula is used for calculating gains or losses on investment property?", options: ["Purchase price + Closing costs + Capital improvements made during holding period – Accrued depreciation = Adjusted basis", "Purchase price – Closing costs + Capital improvements made during holding period – Accrued depreciation = Adjusted basis", "Purchase price – Closing costs – Capital improvements made during holding period – Accrued depreciation = Adjusted basis", "Purchase price – Closing costs – Capital improvements made during holding period + Accrued depreciation = Adjusted basis"], answer: 0 },
+  { id: 73, q: "All of the following transactions require that an agency disclosure form be given upon first substantive contact EXCEPT", options: ["sale of a medical condominium.", "sale of a cooperative unit in a 150-unit cooperative building.", "sale of a condominium unit in a 50-unit condominium building.", "sale of a 4-unit town house."], answer: 0 },
+  { id: 74, q: "Which of the following is a voluntary lien?", options: ["A first mortgage lien", "A property tax lien", "An income tax lien", "A judgment lien from a lawsuit"], answer: 0 },
+  { id: 75, q: "Loans in which lending institutions set their own standards that are governed by banking regulations are", options: ["conventional loans.", "nonconventional loans.", "private loans.", "participation loans."], answer: 0 },
+  { id: 76, q: "The broker who suggests only homes in predominantly white areas to a white couple when there are others in their price range", options: ["is guilty of steering.", "is guilty of blockbusting.", "is guilty of redlining.", "has violated a nonsolicitation order."], answer: 0 },
+  { id: 77, q: "Which of these is NOT required to prove that an individual is an independent contractor?", options: ["The broker provides adequate office space for the licensee.", "The individual is licensed as a real estate broker or salesperson.", "The individual has income based solely on sales output that is not tied in any way to hourly wages.", "The individual performs services pursuant to an executed written contract."], answer: 0 },
+  { id: 78, q: "Regardless of whether a licensee is an employee or an independent contractor,", options: ["the employing broker bears income-reporting responsibilities.", "the employing broker is not responsible for supervising an associate working from home.", "the employing broker must provide medical health insurance to the independent contractor.", "compensation must only be derived from hourly wages."], answer: 0 },
+  { id: 79, q: "In a real estate transaction, who often carries MOST of the liability regarding environmental concerns?", options: ["The buyer", "The broker", "The seller", "The lender"], answer: 2 },
+  { id: 80, q: "Which of the following is protected under New York State Fair Housing laws but NOT under the federal law?", options: ["Race", "Sexual orientation", "National origin", "Lawful occupation"], answer: 1 },
+  { id: 81, q: "A modified gross lease is used for which type of property?", options: ["Residential", "Commercial", "Warehouse", "Industrial"], answer: 1 },
+  { id: 82, q: "In a trust, which party makes the arrangement transferring the assets of the trust to another?", options: ["Beneficiary", "Trustee", "Trustor", "Remainderman"], answer: 2 },
+  { id: 83, q: "Once the borrower has paid the note in full, the", options: ["mortgagee is required to execute a satisfaction of mortgage.", "mortgagor is required to execute a satisfaction of mortgage.", "borrower's final check serves as evidence that the mortgage lien has been removed from the property.", "mortgage lien will be removed automatically."], answer: 0 },
+  { id: 84, q: "Which of the following statements is TRUE?", options: ["Mortgage bankers need not have licenses to loan money.", "Mortgage brokers need not have licenses to place a loan for a borrower.", "Any branch office of a mortgage banker requires registration and the payment of a fee.", "All of these are true."], answer: 2 },
+  { id: 85, q: "The electric service that charges actual consumption and is paid to the utility company is", options: ["submeter.", "rent inclusion.", "direct meter.", "common meter."], answer: 2 },
+  { id: 86, q: "In the appraisal process, a highest and best use analysis", options: ["examines the existing improvement depreciation.", "examines the value of only the new improvement.", "involves the comparison of alternative legal and financially viable uses that may exist on the property.", "is not generally used for residential properties."], answer: 2 },
+  { id: 87, q: "The municipal action that authorizes the expenditure of funds and provides for the source of government money is", options: ["appropriation.", "lispendens.", "escheat.", "condemnation."], answer: 0 },
+  { id: 88, q: "Ownership in land is", options: ["ownership in the ground.", "ownership in fee complicated.", "ownership in fee simple.", "none of these."], answer: 2 },
+  { id: 89, q: "If demand is unchanged and supply decreases,", options: ["shortages occur and lead to lower prices.", "prices will fall.", "prices will rise.", "prices will remain largely the same."], answer: 2 },
+  { id: 90, q: "A property manager will develop", options: ["the same plan for marketing all types of property.", "the same plan for marketing residential and commercial property.", "the same marketing plan for industrial property and residential property.", "an entirely different marketing plan for residential property than for industrial property."], answer: 3 },
+  { id: 91, q: "A buyer client and a seller client of the same firm want to enter into a sales agreement. Both parties still want the firm's agents to represent them and are uncomfortable with a dual agency relationship. Which of the following arrangements might suit the parties?", options: ["The seller and the buyer can request a designated agent relationship.", "The seller and the buyer can request a subagent relationship.", "The seller and the buyer can request a closing agent relationship.", "The seller and the buyer can request an escrow agent relationship."], answer: 0 },
+  { id: 92, q: "A phrase used in leases to indicate the tenant's responsibility with respect to increased costs in property operations is", options: ["proportionate share.", "porter's wage escalation.", "usable square foot.", "direct operating escalation."], answer: 0 },
+  { id: 93, q: "Which of these is NOT a form of electric service delivery in New York?", options: ["Watts per square foot", "Direct meter", "Submeter", "Rent inclusion"], answer: 0 },
+  { id: 94, q: "The first step in the income analysis process is the examination of", options: ["the equity dividend rate.", "the before-tax cash flow.", "the effective gross income.", "the potential gross income (PGI)."], answer: 3 },
+  { id: 95, q: "The projection of future income and expenses or other results to be expected at some point in the future is", options: ["a financial analysis of the future.", "a pro forma statement.", "an income-expense projection statement.", "a profit and loss statement."], answer: 1 },
+  { id: 96, q: "The buyer of a condominium receives an undivided interest in common elements and", options: ["a proprietary lease to the unit.", "a deed conveying fee simple ownership of the unit.", "a leasehold interest in the property.", "a five-year lease to the unit."], answer: 1 },
+  { id: 97, q: "Condops were originally created in response to the IRS 80/20 rule, which", options: ["restricted co-ops from achieving passive income activity in excess of 80% of their operating budget.", "required co-ops to achieve passive income activity in excess of 20% of their operating budget.", "restricted co-ops from achieving passive income activity in excess of 20% of their operating budget.", "required co-ops to achieve passive income activity in excess of 80% of their operating budget."], answer: 2 },
+  { id: 98, q: "A purchaser in a cooperative receives", options: ["a share of all revenue generated by the cooperative.", "a trust deed.", "a mortgage.", "ownership of stock in the cooperative corporation."], answer: 3 },
+  { id: 99, q: "Uniformity among districts assessed at different rates is achieved through", options: ["an equalization factor.", "the loss factor.", "the true tax.", "the transitional tax."], answer: 0 },
+                    ]
+                },
+                {
+                    id: 'exam4',
+                    name: 'Exam 4 (Prelicensing)',
+                    color: '#059669',
+                    themeClass: 'tab-4',
+                    questions: [
+  { id: 1, q: "What are the age and experience requirements to apply for a salesperson license?", options: ["18 years old and no experience necessary", "18 years old and at least one year of experience", "21 years old and no experience necessary", "21 years old and at least two years of experience"], answer: 0 },
+  { id: 2, q: "Revocation of a license means a license is withdrawn and", options: ["can be reinstated at any time the DOS deems appropriate.", "can only be reinstated after one year.", "it becomes permanent after the third offense (\"three strikes and you're out\" rule).", "it's permanent; the license can never be reinstated."], answer: 1 },
+  { id: 3, q: "Which agency issues real estate licenses in the State of New York?", options: ["the Attorney General's office", "the Department of State", "the New York State Board of Real Estate", "the New York State Legislature"], answer: 1 },
+  { id: 4, q: "What is another word for principal?", options: ["agent", "client", "customer", "fiduciary"], answer: 1 },
+  { id: 5, q: "An agent owes all of these duties to a customer EXCEPT", options: ["disclosure of material facts.", "fair dealing.", "honesty.", "loyalty."], answer: 3 },
+  { id: 6, q: "What is the preferred method of creating an agency relationship?", options: ["agency by ratification", "expressed agency", "gratuitous agency", "implied agency"], answer: 1 },
+  { id: 7, q: "When a licensee is the client's designated agent, the client gives up the agent's duty of", options: ["advocacy in negotiating.", "obedience.", "reasonable care.", "undivided loyalty."], answer: 3 },
+  { id: 8, q: "A seller client has vicarious liability for each of these EXCEPT a", options: ["broker's agent.", "dual agent.", "listing agent.", "subagent."], answer: 0 },
+  { id: 9, q: "A licensed salesperson acting as a subagent can receive commission payments", options: ["directly from the client.", "from the buyer's broker.", "from the listing broker.", "only from his or her employing broker."], answer: 3 },
+  { id: 10, q: "Someone walks into an open house. The listing agent must present an agency disclosure before", options: ["the agent answers any questions about the house.", "the agent signs a listing agreement with that person.", "any confidential information is exchanged.", "the person enters the house."], answer: 2 },
+  { id: 11, q: "A listing broker must maintain a signed agency disclosure form", options: ["as long as the listing agreement is active.", "until the transaction closes.", "for at least one year after the transaction closes.", "for at least three years after the transaction closes."], answer: 3 },
+  { id: 12, q: "Which type of listing agreement provides the greatest opportunity for a listing broker to earn a commission?", options: ["exclusive agency agreement", "exclusive right to sell agreement", "open listing", "net listing"], answer: 1 },
+  { id: 13, q: "An agent who discusses the commission rates charged by his broker with someone from another agency could be accused of which antitrust violation?", options: ["allocation", "group boycotting", "price fixing", "tying in"], answer: 2 },
+  { id: 14, q: "A salesperson who is an independent contractor", options: ["has no responsibility to the firm she works for.", "has taxes withheld from her paycheck.", "is not subject to withholding requirements.", "never pays taxes on her earnings."], answer: 2 },
+  { id: 15, q: "An example of chattel is", options: ["a building attached to the land.", "a chandelier attached to a ceiling.", "a tree growing on the land.", "wheat that has been harvested."], answer: 3 },
+  { id: 16, q: "The fullest interest in property is known as what kind of estate?", options: ["fee simple estate", "life estate", "leasehold estate", "qualified fee estate"], answer: 0 },
+  { id: 17, q: "A husband and wife purchase a home. Unless specified otherwise, it is assumed that they will take ownership as", options: ["joint tenants.", "tenants in common.", "tenants by the entirety.", "tenants in severalty."], answer: 2 },
+  { id: 18, q: "ABC Utility Company has the right to enter a homeowner's property to repair electric lines. What kind of easement does this represent?", options: ["easement appurtenant", "easement by prescription", "easement in gross", "easement servient"], answer: 2 },
+  { id: 19, q: "Which is an example of a general involuntary lien?", options: ["judgment lien", "mechanic's lien", "mortgage", "property tax lien"], answer: 0 },
+  { id: 20, q: "A homeowner facing foreclosure has a number of liens: The original mortgage, a mechanic's lien from six months ago, a judgment lien from two years ago, and a property tax lien that was just filed. When the property is sold, which lien will be paid first from the proceeds?", options: ["judgment lien", "mechanic's lien", "mortgage", "property tax lien"], answer: 3 },
+  { id: 21, q: "A contract between a minor and an adult is", options: ["valid.", "voidable by the minor.", "voidable by either party.", "void."], answer: 1 },
+  { id: 22, q: "A buyer makes an offer, contingent on selling his house first. What clause can be included in the sales contract that would allow the seller to pursue other buyers in the meantime?", options: ["as is clause", "escape clause", "mortgage contingency clause", "time is of the essence clause"], answer: 1 },
+  { id: 23, q: "The tenant signs a one-month lease on an apartment. What type of leasehold estate does this represent?", options: ["estate at will", "estate for years", "periodic estate", "tenancy at sufferance"], answer: 1 },
+  { id: 24, q: "A valid deed must contain whose signatures?", options: ["all grantors", "at least one grantee", "a notary public or judge", "one grantor and one grantee"], answer: 0 },
+  { id: 25, q: "Which type of deed would most likely be used to remove a cloud on a title?", options: ["bargain and sale deed", "full warranty deed", "judicial deed", "quitclaim deed"], answer: 3 },
+  { id: 26, q: "Which type of legal description uses a survey map of a subdivision?", options: ["block and lot", "metes and bounds", "monuments and pins", "rectangular survey system"], answer: 0 },
+  { id: 27, q: "In New York, which cost at closing is most typically paid by the seller?", options: ["flood certification fee", "home inspection fees", "real property transfer tax", "title insurance"], answer: 2 },
+  { id: 28, q: "The Truth In Lending Act encompasses all of the following EXCEPT", options: ["gives buyers the right to inspect the Closing Disclosure at least three days prior to closing.", "limits the number of points a lender may charge to close a commercial mortgage.", "requires lenders to provide borrowers with a Loan Estimate of closing costs.", "requires the use of the Closing Disclosure for all federally related, one to four family residential loans."], answer: 1 },
+  { id: 29, q: "The theoretical price real estate should bring in a typical transaction is known as the", options: ["appraised value.", "asking price.", "indirect cost.", "market value."], answer: 3 },
+  { id: 30, q: "When finding comparable properties for a comparative market analysis, a real estate agent will consider", options: ["all homes currently listed, recently sold, or removed from the market.", "any home that is currently listed or recently sold.", "only homes that are currently listed for sale.", "only homes that have recently sold."], answer: 0 },
+  { id: 31, q: "After examining a property, an appraiser made the following notes: Replacement cost = $465,000; Depreciation = $18,000; Site Value = $85,000. Determine the final estimate of value using the cost approach.", options: ["$447,000", "$532,000", "$550,000", "$568,000"], answer: 1 },
+  { id: 32, q: "What is it called when a lender evaluates a prospective buyer and documents, in writing, that he is willing to loan this buyer up to a certain amount of money?", options: ["credit scoring", "loan closing", "pre-approval", "pre-qualification"], answer: 2 },
+  { id: 33, q: "Fred has missed two mortgage payments. What clause would allow his lender to demand that he pay the entire balance?", options: ["acceleration clause", "alienation clause", "escalation clause", "foreclosure clause"], answer: 0 },
+  { id: 34, q: "ABC Mortgage Company loaned Judy $180,000 to buy a house. A week later, they sold her mortgage on the secondary market. Who most likely bought Judy's mortgage?", options: ["the Department of Housing and Urban Development", "the Federal Housing Administration", "the Federal National Mortgage Association", "the State of New York Mortgage Agency"], answer: 2 },
+  { id: 35, q: "Sue faces possible foreclosure, and contacts a mortgage lender whose ad promises to save her home for her. At closing, Sue sees that the lender changed the terms of the loan that they had agreed to, but she felt she had no choice but to go ahead with the loan or lose her house. This is an example of", options: ["affinity marketing.", "loan flipping.", "negative amortization.", "predatory lending."], answer: 3 },
+  { id: 36, q: "A mortgage loan originator can perform each of these activities EXCEPT", options: ["lend money.", "negotiate a loan.", "process a loan.", "solicit a loan."], answer: 0 },
+  { id: 37, q: "An agent lists a 1.8 acre property for sale. The owner wants $3.25 per square foot. What is the asking price of the property?", options: ["$248,976.00", "$254,826.00", "$255,352.50", "$266,935.50"], answer: 1 },
+  { id: 38, q: "A homeowner wants to net $140,000 on the sale of his house. If his closing costs will be $12,600, he owes $44,500 on his current mortgage, and he is paying a 6% commission, what is the minimum offer he will accept (rounded up to the nearest dollar)?", options: ["$205,313", "$208,926", "$209,149", "$209,681"], answer: 3 },
+  { id: 39, q: "When someone dies without a will and without heirs or creditors, his property reverts to the state through the process of", options: ["devise.", "eminent domain.", "escheat.", "testate descent."], answer: 2 },
+  { id: 40, q: "Under what circumstance may a deed restriction be removed?", options: ["The current deed owner sells the property to another buyer.", "The deed restriction prohibits minorities from owning the property.", "No one comes forward to enforce the deed restriction.", "The statute of limitations expires."], answer: 1 },
+  { id: 41, q: "Tony owns the barbershop he built 25 years ago on the same street as his family home. The area was zoned residential 10 years ago. Why is the barbershop allowed to remain open?", options: ["The doctrine of laches applies since no one has complained about it.", "He has an area variance.", "He receives incentive zoning.", "It is a nonconforming use."], answer: 3 },
+  { id: 42, q: "Each of these is a type of construction framing EXCEPT", options: ["balloon construction.", "platform construction.", "post and beam construction.", "slab on grade construction."], answer: 3 },
+  { id: 43, q: "As a measure of the force that pushes electricity through a wire, most residential circuits operate at", options: ["100 amps.", "110 volts.", "200 amps.", "220 volts."], answer: 1 },
+  { id: 44, q: "A buyer is considering a house with asbestos insulation coating the water pipes. What should the buyer be most concerned about?", options: ["Asbestos can contaminate the house if removed improperly since airborne particles are dangerous.", "Asbestos is dangerous when wet and therefore should be encapsulated in waterproof material.", "The bank will likely refuse to approve a mortgage until the asbestos insulation is removed.", "The pipes should be replaced to prevent the asbestos from leaching into the drinking water."], answer: 0 },
+  { id: 45, q: "Which federal environmental law, known as the Superfund, creates requirements for closed and abandoned waste sites?", options: ["Clean Water Act", "Comprehensive Environmental Response, Compensation, and Liability Act", "Resource Conservation and Recovery Act", "Safe Drinking Water Act"], answer: 1 },
+  { id: 46, q: "Which protected class is NOT covered by New York State law but may be covered by a specific municipality?", options: ["age", "lawful source of income", "marital status", "sexual orientation"], answer: 1 },
+  { id: 47, q: "A licensee attempts to get listings by telling homeowners in a neighborhood that their property values will decline when a group of immigrants move in. The licensee could be found guilty of", options: ["blockbusting.", "boycotting.", "redlining.", "steering."], answer: 0 },
+  { id: 48, q: "In an advertisement for a four-bedroom home, which statement might be considered discriminatory?", options: ["beautiful home in an exclusive neighborhood", "comfortable home near community recreation center", "excellent location; walk to bus stop", "large, four-bedroom on a quiet cul-de-sac lot"], answer: 0 },
+  { id: 49, q: "Sally is interested in renting the other half of an owner-occupied duplex. She calls the listing broker about it who tells her that the owner, his client, does not allow children. Who, if anyone, is violating fair housing laws in this situation?", options: ["the broker", "the owner", "both the broker and the owner", "neither the broker nor the owner"], answer: 2 },
+  { id: 50, q: "A zoning board of appeals", options: ["inspects property for compliance with code.", "issues building permits.", "rules on requests for variances.", "sets the zoning laws for a community."], answer: 2 },
+  { id: 51, q: "Who is responsible for approving septic and other sanitation systems in New York State?", options: ["county health department", "municipal planning board", "NYS Department of Environmental Conservation", "NYS Department of Health"], answer: 0 },
+  { id: 52, q: "A property owner who needs a high limit of liability coverage would likely consider", options: ["a blanket policy.", "a dwelling policy.", "a package policy.", "an umbrella policy."], answer: 3 },
+  { id: 53, q: "The lender's interest in property insurance relates to making sure", options: ["the buyer has enough coverage for contents of property.", "the loan amount is increased to cover the cost of required insurance.", "the property owner has enough coverage for a liability lawsuit.", "there is enough coverage to cover the value of the loan."], answer: 3 },
+  { id: 54, q: "Ad valorem taxes are based on a property's", options: ["appraised value", "assessed value", "market price", "sale price"], answer: 1 },
+  { id: 55, q: "Homeowner Frank is challenging the assessment of his property. Each of these would be a valid reason to file a grievance EXCEPT", options: ["his house is actually in a different assessing unit.", "his house is assessed at 60% while his neighbor's house is assessed at 50%.", "his house is classified as retail property.", "the amount of the tax bill is too high."], answer: 3 },
+  { id: 56, q: "The STAR program provides a partial exemption to New York State homeowners for", options: ["capital gains taxes.", "county property taxes.", "school district taxes.", "special assessment taxes."], answer: 2 },
+  { id: 57, q: "Which pair could be used in a tax-deferred like-kind exchange?", options: ["condominium in Hilton Head for a condominium in Costa Rica", "single family home for a stable of race horses", "retail strip mall for an office building", "shares of stock for a cooperative apartment"], answer: 2 },
+  { id: 58, q: "Lyle bought a duplex for $200,000 and leases each unit for $580 a month. The land on which the duplex sits is valued at $30,000. How much can Lyle deduct from his income tax each year for straight line depreciation (rounded to the nearest dollar)?", options: ["$5,128", "$5,676", "$6,182", "$7,273"], answer: 2 },
+  { id: 59, q: "Wilma sells her house for $600,000 two months after her husband passed away. They had purchased the house in 1952 for $58,000. Assuming they met the requirement for filing jointly, on what amount will Wilma have to pay income tax?", options: ["$42,000", "$292,000", "$500,000", "$542,000"], answer: 0 },
+  { id: 60, q: "Which is an example of a limited common area at a condominium?", options: ["basement in a particular unit", "community clubhouse that can be reserved by residents", "driveway for a particular unit", "swimming pool that everyone uses"], answer: 2 },
+  { id: 61, q: "Condominium units are considered ________ property and are conveyed by ________.", options: ["personal / deed", "personal / proprietary lease", "real / deed", "real / proprietary lease"], answer: 2 },
+  { id: 62, q: "Title to a specific cooperative apartment is held by", options: ["all residents in the building.", "the cooperative board.", "the corporation.", "the individual resident."], answer: 2 },
+  { id: 63, q: "Opal lives in an apartment that is going cooperative. The current residents are given the first option to buy in, and Opal decides to take advantage of the opportunity. Which statement about Opal's new co-op is FALSE?", options: ["She can finance the purchase of her co-op with a share loan.", "She will have an undivided interest in common areas.", "She will own the airspace inside her co-op fee simple.", "She will be responsible for paying a proportional share of the building's expenses."], answer: 2 },
+  { id: 64, q: "What is the minimum licensing requirement to sell commercial real estate in New York?", options: ["a commercial real estate salesperson's license", "a real estate broker's license", "a real estate salesperson's license", "a real estate salesperson's license plus one year of experience assisting in commercial sales"], answer: 2 },
+  { id: 65, q: "An advantage for businesses to do a sale-and-leaseback is to", options: ["free up liquid assets to invest in other product or resources.", "increase the number and the variety of assets tied into real estate.", "leverage the financing of the equipment.", "qualify for more government assistance."], answer: 0 },
+  { id: 66, q: "Craig owns a warehouse and his property taxes were recently raised. In turn, Craig charged the tenant currently occupying the building additional operating expenses. This is an example of", options: ["the loss factor.", "a pass-through.", "the Porter's wage escalation formula.", "proration."], answer: 1 },
+  { id: 67, q: "Who pays the property taxes in a triple net lease?", options: ["broker", "landlord", "property manager", "tenant"], answer: 3 },
+  { id: 68, q: "The owner of Oliver's Bakery leases space in a recently renovated building in an up-and-coming neighborhood. His lease calls for a base rent of $3,500 per month plus a 6% overage percentage. What is Oliver's base rent for the year?", options: ["$35,000", "$42,000", "$43,200", "$44,520"], answer: 1 },
+  { id: 69, q: "Net square footage refers to", options: ["common space.", "rentable space.", "shared space.", "usable space."], answer: 3 },
+  { id: 70, q: "An amenity purchaser", options: ["occupies or uses the purchased property.", "purchases multiple parcels and assembles them for subdivision development.", "purchases property, makes minor improvements, then resells it quickly for a profit.", "uses government grants to purchase low-income housing."], answer: 0 },
+  { id: 71, q: "Which is a characteristic of a pro forma statement that is NOT a characteristic of an operating statement?", options: ["documents a property's performance", "illustrates total income and expenses", "looks for net operating income", "provides hypothetical data to assist in making decisions"], answer: 3 },
+  { id: 72, q: "Taylor has $80,000 to invest and considers buying a strip mall with an asking price of $480,000. The estimated NOI, based on the current owner's operating statement, is $36,000. What would be his expected capitalization rate?", options: ["7.5%", "9%", "13.3%", "17.3%"], answer: 0 },
+  { id: 73, q: "A building has 28,000 rentable square feet, 22,160 square feet of which are considered useable. What is this building's loss factor?", options: ["7.9%", "12.6%", "20.1%", "31.5%"], answer: 2 },
+  { id: 74, q: "A _____________ has a fiduciary obligation to a _____________.", options: ["property manager / property owner", "property manager / tenant", "property owner / property manager", "tenant / property owner"], answer: 0 },
+  { id: 75, q: "In his first week on the job, property manager Tim checks the insurance coverage for the building he manages and indicates potential needs for more coverage. This is an example of Tim's obligation to", options: ["account management.", "building maintenance.", "building security.", "risk management."], answer: 3 },
+                    ]
+                },
+                {
+                    id: 'exam5',
+                    name: 'Final Exam',
+                    color: '#e11d48',
+                    themeClass: 'tab-5',
+                    questions: [
+  { id: 1, q: "If a licensee has violated the license law, DOS may impose a fine of:", options: ["up to $10,000", "no more than $100", "up to $1,000", "imprisonment for up to five years"], answer: 2 },
+  { id: 2, q: "If a licensee becomes a partner in a real estate firm, he must have a(n):", options: ["salesperson license", "broker license", "associate broker license", "minimum of two years' experience as a broker"], answer: 1 },
+  { id: 3, q: "Which of the following duties does NOT require a real estate license?", options: ["negotiating the exchange of real property for others", "renting units for several different owners", "auctioning real property", "sale of a business where there is no real property"], answer: 3 },
+  { id: 4, q: "An apartment sharing agent is licensed by:", options: ["Department of Law", "New York Attorney General's office", "Department of State", "Division of Housing and Community Renewal"], answer: 2 },
+  { id: 5, q: "A business activity where there is a monopoly or conspiracy that negatively impacts another individual or company to do business is called a(n):", options: ["estoppel", "illegal use of the rule of reason", "kickback", "restraint of trade"], answer: 3 },
+  { id: 6, q: "The governmental commission that has the power to declare trade practices unfair is the:", options: ["Warren Commission", "Federal Trade Commission", "New York State Commission on Human Rights", "McLaren Commission"], answer: 1 },
+  { id: 7, q: "An agency relationship created by an oral or written agreement between principal and agent is known as:", options: ["implied agency", "express agency", "ratification", "estoppel"], answer: 1 },
+  { id: 8, q: "Sally, a salesperson, represents the sellers. She has, however, suggested to the buyers that she is trying to obtain the full amount of the listing price as there are several other lower offers on the property. In this scenario:", options: ["Sally is acting appropriately as agent of the seller", "a possible dual agency situation has arisen", "an agency by ratification has arisen", "Sally has now switched her representation to the buyers only"], answer: 1 },
+  { id: 9, q: "To die, leaving no will, one is said to die:", options: ["testate", "escheated", "intestate", "alienated"], answer: 2 },
+  { id: 10, q: "Another name for personal property is:", options: ["realty", "chattel", "fixture", "commodity"], answer: 1 },
+  { id: 11, q: "A freehold estate limited by the holder's own lifetime is a:", options: ["life estate", "life estate pur autre vie", "life estate in remainder", "life estate in reversion"], answer: 0 },
+  { id: 12, q: "The legal right to enter upon another's property is a(n):", options: ["trespass", "easement", "encroachment", "variance"], answer: 1 },
+  { id: 13, q: "The local utility company would obtain the right to run the power line to serve your property by means of:", options: ["police power", "an easement appurtenant", "a prescriptive easement", "an easement in gross"], answer: 3 },
+  { id: 14, q: "A riparian owner is one who owns land bordering on a(n):", options: ["man-made lake", "ocean or sea", "irrigation canal", "flowing river or stream"], answer: 3 },
+  { id: 15, q: "The type of deed that may be used to convey title to a property from an estate is a(n):", options: ["deed of surrender", "grant deed", "executor's deed", "bargain and sale deed"], answer: 2 },
+  { id: 16, q: "A bilateral contract is one in which:", options: ["an offer is considered open until revoked", "one party agrees to do several acts at different times", "one party's promise is given in exchange for another's promise", "one party's promise is given for the action of another's"], answer: 2 },
+  { id: 17, q: "If title to the property remains in the seller's name after it is sold on a monthly payment plan, the buyer would have purchased it under a(n):", options: ["purchase money mortgage", "FHA loan", "conventional loan", "installment land contract"], answer: 3 },
+  { id: 18, q: "A valid purchase and sale agreement is a(n):", options: ["unilateral contract", "implied bilateral contract", "express unilateral contract", "express bilateral contract"], answer: 3 },
+  { id: 19, q: "If an owner physically removes a tenant and his possessions from the leased premises without the aid of the court system, this is known as:", options: ["dispossession proceedings", "actual eviction", "ejectment", "constructive eviction"], answer: 1 },
+  { id: 20, q: "A tenant has five years remaining on her lease. If she transfers the lease contract to another for three years and the new lessee assumes the lease payments, she has:", options: ["assigned the lease", "cancelled the lease", "sublet the apartment", "assumed the lease"], answer: 0 },
+  { id: 21, q: "All but which of the following are essential elements of a lease:", options: ["demising clause", "signatures of the lessor and lessee", "habendum clause", "legal description"], answer: 2 },
+  { id: 22, q: "In the transfer of what type of property may a flip tax be imposed?", options: ["condominium", "cooperative", "any fee simple interest", "on all properties sold in New York City"], answer: 1 },
+  { id: 23, q: "The FHA programs are for which of the following purposes?", options: ["making housing loans", "guaranteeing housing loans", "purchasing loans", "insuring housing loans"], answer: 3 },
+  { id: 24, q: "The right of a borrower to redeem his property by paying the principal amount of the mortgage debt before the lender initiates foreclosure is called:", options: ["equity of redemption", "deed in lieu of foreclosure", "involuntary alienation", "personal liability"], answer: 0 },
+  { id: 25, q: "Any mortgage that is subordinate to another mortgage is called a(n):", options: ["first mortgage", "junior mortgage", "mortgage satisfaction", "negative amortization"], answer: 1 },
+  { id: 26, q: "Which of the following does NOT apply to conventional loans?", options: ["they may be insured or uninsured", "there are more than three types of conventional loans", "they may be fixed rate mortgages", "they are funded by an agency of the government"], answer: 3 },
+  { id: 27, q: "A type of zoning that is illegal in New York is:", options: ["nonconforming use", "incentive zoning", "cluster zoning", "spot zoning"], answer: 3 },
+  { id: 28, q: "Private restrictions on land placed by a nongovernmental entity are known as:", options: ["encroachments", "restrictive covenants", "embellishments", "easements"], answer: 1 },
+  { id: 29, q: "Property of a person, who dies intestate, leaving no legal heirs, passes to the government by the process of:", options: ["eminent domain", "escheat", "adverse possession", "condemnation"], answer: 1 },
+  { id: 30, q: "A detailed architectural rendering of a structure is known as a(n):", options: ["site plan", "blueprint", "feasibility study", "plat"], answer: 1 },
+  { id: 31, q: "New York on-site well requirements are regulated by the Department of:", options: ["Health", "State", "Agriculture", "Parks and Historic Preservation"], answer: 0 },
+  { id: 32, q: "In house construction, the first wooden member of the structure which is used as the nail surface for the floor system is known as the:", options: ["sill plate", "ridge beam", "floor joist", "frieze board"], answer: 0 },
+  { id: 33, q: "In house construction, the main carrying beam that spans the distance from one side of the foundation to the other is known as a:", options: ["lally column", "girder", "rafter", "lintel"], answer: 1 },
+  { id: 34, q: "The cost of replacing or reproducing a structure in the event of loss is known as:", options: ["value in use", "investment value", "insured value", "mortgage loan value"], answer: 2 },
+  { id: 35, q: "The value of a property based on its utility to the owner or investor is called:", options: ["value in use", "insured value", "mortgage loan value", "assessed value"], answer: 0 },
+  { id: 36, q: "Which of the following is NOT included in direct costs?", options: ["hard costs", "the cost of labor", "the cost of materials", "financing costs"], answer: 3 },
+  { id: 37, q: "Individuals posing as prospective home seekers, but are actually volunteers who investigate equal treatment in seeking a home through a brokerage firm are known as:", options: ["investigators", "testers", "facilitators", "finders"], answer: 1 },
+  { id: 38, q: "A protected class under New York City law and not under state or federal law is:", options: ["age", "marital status", "lawful occupation", "familial status"], answer: 2 },
+  { id: 39, q: "Blockbusting is an acceptable practice:", options: ["only under the supervision of real estate licensees", "only when approved by either HUD or the Justice Dept.", "under no circumstances", "only in New York"], answer: 2 },
+  { id: 40, q: "ABC Savings and Loan would violate the Federal Fair Housing Act by denying a loan to Seymour because of which of the following:", options: ["low earnings", "too many loans", "too old", "Jewish descent"], answer: 3 },
+  { id: 41, q: "The New York law which requires the preparation of an environmental impact statement for any project that may impact the environment and requires governmental approval is the:", options: ["New York Sanitary Code", "State Environmental Quality Review Act", "Superfund Amendments and Reauthorization Act", "The Clean Air Act"], answer: 1 },
+  { id: 42, q: "The federal act that expanded the definition of persons liable for environmental clean-up costs is the:", options: ["Superfund Amendments and Reauthorization Act", "Clean Air Act", "National Environmental Policy Act", "Environmental Conservation Law"], answer: 0 },
+  { id: 43, q: "One of the biggest concerns regarding highly corrosive water (water that contains a lot of minerals) is that it:", options: ["turns the laundry gray", "may contain large amounts of lead", "kills off the fluoride in the water", "discolors the water"], answer: 1 },
+  { id: 44, q: "Real estate licensees are classified as independent contractors under the:", options: ["IRS code sections 3508 (a)(b)", "common law", "Article 12-A of the Real Property Law", "Section 443 of the Real Property Law"], answer: 0 },
+  { id: 45, q: "In an independent contractor relationship with a broker, which of the following characterize allowable activities in this relationship? The salesperson:", options: ["is compensated by the number of hours worked", "may not engage in outside employment", "must work only from the broker's office", "commissions are paid without deduction for taxes"], answer: 3 },
+  { id: 46, q: "A broker's commission is 7% of the first $55,000 plus 5% of the sale price over $50,000. What is the total commission on the sale of a $87,000 property?", options: ["$4,350", "$5,700", "$5,520", "$6,090"], answer: 1 },
+  { id: 47, q: "A lot measure 200 feet by 474 feet. How many acres are contained in the lot?", options: ["2.18", "17.99", "43", "95"], answer: 0 },
+  { id: 48, q: "If one month's interest paid on a mortgage is $200 and the principal balance is $30,000, what is the rate of interest?", options: ["6%", "6.67%", "7.25%", "8%"], answer: 3 },
+  { id: 49, q: "City councils, town boards, and village boards of trustees perform which function?", options: ["preparing and amending a master plan for the community", "recommending amendments to the zoning ordinance or map", "adoption of the municipal budget", "implementing the master plan"], answer: 2 },
+  { id: 50, q: "Which of the following is a function of a planning board?", options: ["adoption of the tax rate", "recommending amendments to the zoning ordinance or map", "decisions to take private property for public use", "the calling of a moratorium to halt building projects for a specified time"], answer: 1 },
+  { id: 51, q: "Which of the following is NOT a function of the receiver of taxes?", options: ["bills for and collects property and school taxes", "collects other fees such as water fees and permit fees", "tracks payments for the municipality", "assists taxpayers with certain exemptions"], answer: 3 },
+  { id: 52, q: "Coverage to protect against claims alleging that ones negligence caused injury is:", options: ["civil insurance", "personal articles floater", "liability insurance", "a deductible"], answer: 2 },
+  { id: 53, q: "Property insurance can protect against all of the following EXCEPT:", options: ["additional living expense if forced to live away from home temporarily", "riot and civil commotion", "damage by the insured to someone else's property due to negligence", "earthquake"], answer: 3 },
+  { id: 54, q: "Replacement cost:", options: ["is a special type of fire coverage for when the structure cannot be saved", "is the assessment of the property before insuring an individual", "means that the insured is reimbursed for the replacement cost minus the physical depreciation of the lost or damaged property", "means that the insured is covered and reimbursed for the actual cost of replacing the damaged property"], answer: 3 },
+  { id: 55, q: "The tax rate is determined by the:", options: ["assessment on each property", "amount of the tax levy", "market value of properties", "number of exemptions in the assessing unit"], answer: 1 },
+  { id: 56, q: "Which of the following may NOT be subject to property taxation?", options: ["mobile homes", "residential property", "stores", "government owned property"], answer: 3 },
+  { id: 57, q: "When a legal proceeding such as a tax sale is brought against a property and not against the individual and his personal property, it is known as a(n):", options: ["in rem proceeding", "article 78 proceeding", "lis pendens", "statutory taking"], answer: 0 },
+  { id: 58, q: "Which of the following is NOT eligible for a full or partial property tax exemption?", options: ["seniors", "veterans", "religious groups", "small business owners"], answer: 3 },
+  { id: 59, q: "Which of these issues reveal the amount of cash that the apartment corporation or the condominium holds at year's end?", options: ["underlying mortgage", "reserve fund", "financial statement", "maintenance and assessment history"], answer: 1 },
+  { id: 60, q: "Which of the following is considered a liquid investment?", options: ["land", "stock", "a group of condominiums", "a subdivision"], answer: 1 },
+  { id: 61, q: "A type of lease that can assist the owner in reaching a natural break-even point is a(n):", options: ["sale leaseback", "index lease", "gross lease", "percentage lease"], answer: 3 },
+  { id: 62, q: "Before investment in large scale real estate projects, the prudent investor must analyze all facets of the marketing project. This activity is called a(n):", options: ["feasibility study", "operating statement", "sensitivity analysis", "comparative market analysis"], answer: 0 },
+  { id: 63, q: "Which of the following is NOT an example of expense items contained in an investment property operating statement?", options: ["accounting and legal fees", "property insurance", "vacancy rates", "return of security deposits"], answer: 3 },
+  { id: 64, q: "With investment property, losses from vacancies and credit losses are deducted from gross scheduled rental income to arrive at:", options: ["net operating income", "debt service", "effective gross income", "deductible expenses"], answer: 2 },
+  { id: 65, q: "With regard to investment property, mortgage, principal, and interest payments are referred to as:", options: ["allowable taxable deductions", "debt service", "tax shelters", "pro forma expenses"], answer: 1 },
+  { id: 66, q: "Which of the following CANNOT be used as a depreciable asset?", options: ["machinery", "personal property", "buildings", "equipment"], answer: 1 },
+  { id: 67, q: "The profit realized from the sale of any capital investment including real estate is called:", options: ["basis", "adjusted basis", "recognized gain", "capital gain"], answer: 3 },
+  { id: 68, q: "An individual can defer capital gains taxes on real estate bought and sold for investment purposes through:", options: ["a mortgage tax deferral", "tax depreciation", "home acquisition financing", "a tax-deferred exchange"], answer: 3 },
+  { id: 69, q: "A difference between a mortgage broker and a mortgage banker is a(n):", options: ["mortgage banker makes loans; a mortgage broker generally does not", "mortgage banker does not require licensure; a mortgage broker does", "mortgage broker need not pay licensure fees; a mortgage banker does", "mortgage banker's license can be used out of state; a mortgage broker's cannot"], answer: 0 },
+  { id: 70, q: "A loan negotiated by a mortgage broker is most often funded by:", options: ["real estate investment trusts", "IOLA", "his own brokerage company", "wholesale lenders"], answer: 3 },
+  { id: 71, q: "Which of the following is NOT a component of a rate lock?", options: ["interest rate", "appraisal", "length of the lock", "points"], answer: 1 },
+  { id: 72, q: "A property manager's fee is usually a combination of a base fee and a percentage of which type of income?", options: ["gross potential", "gross operating", "gross effective", "net operating"], answer: 2 },
+  { id: 73, q: "Periodic financial reports provided to the owner are called:", options: ["stabilized budgets", "operating reports", "management statements", "property management reports"], answer: 3 },
+  { id: 74, q: "To be eligible for insurance coverage, the insured must have a(n):", options: ["a license", "insurable interest", "extended coverage", "coinsurance"], answer: 1 },
+  { id: 75, q: "NYS Penal Code Article 35 has to do with the:", options: ["licensure of salespersons and brokers", "justification defense to use physical force to defend oneself", "licensure of mortgage brokers", "defending oneself against wrongdoing at a DOS hearing"], answer: 1 },
+                    ]
+                },
+            ],
+            reviewQuestions: [],
+            currentFilter: 'all',
+            currentSearch: '',
+            state: {},
+
+            init() {
+                this.loadState();
+                this.renderTabs();
+                this.renderContent();
+            },
+
+            loadState() {
+                const saved = localStorage.getItem('ny-re-quiz-state');
+                if (saved) {
+                    this.state = JSON.parse(saved);
+                } else {
+                    this.exams.forEach(exam => {
+                        this.state[exam.id] = {
+                            answers: {},
+                            flaggedForReview: new Set()
+                        };
+                    });
+                }
+            },
+
+            saveState() {
+                const toSave = JSON.parse(JSON.stringify(this.state));
+                Object.keys(toSave).forEach(key => {
+                    if (toSave[key].flaggedForReview instanceof Set) {
+                        toSave[key].flaggedForReview = Array.from(toSave[key].flaggedForReview);
+                    }
+                });
+                localStorage.setItem('ny-re-quiz-state', JSON.stringify(toSave));
+            },
+
+            renderTabs() {
+                const tabBar = document.getElementById('tabBar');
+                tabBar.innerHTML = this.exams.map(exam => {
+                    const answered = Object.keys(this.state[exam.id]?.answers || {}).length;
+                    const total = exam.questions.length;
+                    let badge = '';
+                    if (answered > 0) {
+                        const correct = Object.values(this.state[exam.id].answers).filter(a => a.correct).length;
+                        const percent = Math.round((correct / answered) * 100);
+                        badge = `<span class="badge">${percent}%</span>`;
+                    }
+                    return `<button class="tab-button ${exam.themeClass}" onclick="app.switchTab('${exam.id}')">${exam.name}${badge}</button>`;
+                }).join('') +
+                `<button class="tab-button tab-review" onclick="app.switchTab('review')">Review<span class="badge" id="reviewBadge">0</span></button>`;
+                tabBar.innerHTML += `<style>
+                  .tab-button { flex-shrink: 0; }
+                </style>`;
+            },
+
+            switchTab(tabId) {
+                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+                event.target.closest('.tab-button').classList.add('active');
+                const content = document.getElementById(`tab-${tabId}`);
+                if (content) content.classList.add('active');
+
+                this.currentFilter = 'all';
+                this.currentSearch = '';
+                this.renderContent();
+            },
+
+            getReviewCount() {
+                let count = 0;
+                this.exams.forEach(exam => {
+                    count += (this.state[exam.id]?.flaggedForReview?.size || 0);
+                });
+                return count;
+            },
+
+            renderContent() {
+                const content = document.getElementById('content');
+                const activeTab = document.querySelector('.tab-button.active');
+                const tabId = activeTab?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'exam1';
+
+                if (tabId === 'review') {
+                    this.renderReviewTab();
+                } else {
+                    const exam = this.exams.find(e => e.id === tabId);
+                    if (exam) {
+                        this.renderExamTab(exam);
+                    }
+                }
+
+                document.getElementById('reviewBadge').textContent = this.getReviewCount();
+            },
+
+            renderExamTab(exam) {
+                const content = document.getElementById('content');
+                const examState = this.state[exam.id];
+                const total = exam.questions.length;
+                const answered = Object.keys(examState.answers).length;
+                const correct = Object.values(examState.answers).filter(a => a.correct).length;
+                const percent = answered > 0 ? Math.round((correct / answered) * 100) : 0;
+                const passing = percent >= 70;
+
+                let html = `<div class="tab-content active ${exam.themeClass}" id="tab-${exam.id}">`;
+                html += `<div class="exam-header">
+                    <div class="exam-title">${exam.name}</div>
+                    <div class="exam-stats">
+                        <div class="stat-item">
+                            <div class="stat-label">Score</div>
+                            <div class="stat-value">${percent}% ${passing ? '<span style="font-size:14px">(PASSING)</span>' : '<span style="font-size:14px">(FAILING)</span>'}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Progress</div>
+                            <div class="stat-value">${answered}/${total}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Correct</div>
+                            <div class="stat-value">${correct}</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Incorrect</div>
+                            <div class="stat-value">${answered - correct}</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${(answered / total) * 100}%"></div>
+                    </div>
+                </div>`;
+
+                html += `<div class="controls">
+                    <button class="control-button reset-button" onclick="app.resetExam('${exam.id}')">Reset This Exam</button>
+                </div>`;
+
+                html += `<div class="filter-pills">
+                    <button class="filter-pill active" onclick="app.setFilter('all')">All</button>
+                    <button class="filter-pill" onclick="app.setFilter('unanswered')">Unanswered</button>
+                    <button class="filter-pill" onclick="app.setFilter('correct')">Correct</button>
+                    <button class="filter-pill" onclick="app.setFilter('incorrect')">Incorrect</button>
+                </div>`;
+
+                html += `<div class="search-box">
+                    <input type="text" placeholder="Search questions..." onkeyup="app.setSearch(this.value)" />
+                </div>`;
+
+                html += `<div class="questions-container">`;
+                exam.questions.forEach(q => {
+                    const ans = examState.answers[q.id];
+                    const show = this.shouldShowQuestion(q, ans);
+
+                    html += `<div class="question-card ${show ? '' : 'hidden'}">
+                        <div class="question-header">
+                            <div class="question-badge ${!ans ? 'badge-unanswered' : ans.correct ? 'badge-correct' : 'badge-incorrect'}">
+                                ${!ans ? '○' : ans.correct ? '✓' : '✗'}
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="question-number">Question ${q.id}</div>
+                                <div class="question-text">${q.q}</div>
+                            </div>
+                        </div>
+                        <div class="options">
+                            ${q.options.map((opt, idx) => {
+                                const isSelected = ans?.selected === idx;
+                                const isCorrect = idx === q.answer;
+                                let classes = 'option-button';
+                                if (ans) {
+                                    if (isCorrect) classes += ' correct';
+                                    if (isSelected && !isCorrect) classes += ' incorrect';
+                                }
+                                return `<button class="${classes}" onclick="app.answerQuestion('${exam.id}', ${q.id}, ${idx})" ${ans ? 'disabled' : ''}>
+                                    <div class="option-letter">${String.fromCharCode(65 + idx)}</div>
+                                    <div>${opt}</div>
+                                </button>`;
+                            }).join('')}
+                        </div>
+                        <button class="dont-know-button ${ans?.dontKnow ? 'answered' : ''}" onclick="app.dontKnow('${exam.id}', ${q.id})" ${ans ? 'disabled' : ''}>
+                            I Don't Know
+                        </button>
+                        ${ans ? `<div class="feedback ${ans.correct ? 'correct' : 'incorrect'}">
+                            ${ans.correct ? '✓ Correct!' : `✗ Incorrect — the answer is ${String.fromCharCode(65 + q.answer)}`}
+                        </div>` : ''}
+                    </div>`;
+                });
+                html += `</div></div>`;
+
+                content.innerHTML = html;
+            },
+
+            renderReviewTab() {
+                const content = document.getElementById('content');
+                const reviewItems = [];
+
+                this.exams.forEach(exam => {
+                    const flagged = this.state[exam.id]?.flaggedForReview || new Set();
+                    flagged.forEach(qId => {
+                        const q = exam.questions.find(q => q.id === qId);
+                        if (q) {
+                            reviewItems.push({ exam, question: q, qId });
+                        }
+                    });
+                });
+
+                let html = `<div class="tab-content active tab-review" id="tab-review">
+                    <div class="exam-header">
+                        <div class="exam-title">Review Bank</div>
+                        <div class="exam-stats">
+                            <div class="stat-item">
+                                <div class="stat-label">Questions</div>
+                                <div class="stat-value">${reviewItems.length}</div>
+                            </div>
+                        </div>
+                    </div>`;
+
+                if (reviewItems.length === 0) {
+                    html += `<div class="empty-state">No questions to review yet. Keep studying!</div>`;
+                } else {
+                    html += `<div class="questions-container">`;
+                    reviewItems.forEach(({ exam, question: q, qId }) => {
+                        const ans = this.state[exam.id].answers[q.id];
+                        html += `<div class="question-card">
+                            <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
+                                <span style="background: ${exam.color}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
+                                    ${exam.name}
+                                </span>
+                            </div>
+                            <div class="question-header">
+                                <div class="question-badge ${ans?.correct ? 'badge-correct' : 'badge-incorrect'}">
+                                    ${ans?.correct ? '✓' : '✗'}
+                                </div>
+                                <div style="flex: 1;">
+                                    <div class="question-number">Question ${q.id}</div>
+                                    <div class="question-text">${q.q}</div>
+                                </div>
+                            </div>
+                            <div class="options">
+                                ${q.options.map((opt, idx) => {
+                                    const isSelected = ans?.selected === idx;
+                                    const isCorrect = idx === q.answer;
+                                    let classes = 'option-button';
+                                    if (isCorrect) classes += ' correct';
+                                    if (isSelected && !isCorrect) classes += ' incorrect';
+                                    return `<button class="${classes}" onclick="app.answerQuestion('${exam.id}', ${q.id}, ${idx})" ${ans?.correct ? 'disabled' : ''}>
+                                        <div class="option-letter">${String.fromCharCode(65 + idx)}</div>
+                                        <div>${opt}</div>
+                                    </button>`;
+                                }).join('')}
+                            </div>
+                            <button class="dont-know-button" onclick="app.dontKnow('${exam.id}', ${q.id})" ${ans?.correct ? 'disabled' : ''}>
+                                I Don't Know
+                            </button>
+                            ${ans?.correct ? `<div class="feedback correct">✓ Correct! Removed from review.</div>` : ''}
+                        </div>`;
+                    });
+                    html += `</div>`;
+                }
+                html += `</div>`;
+
+                content.innerHTML = html;
+            },
+
+            shouldShowQuestion(q, ans) {
+                const search = this.currentSearch.toLowerCase();
+                const matchesSearch = search === '' || q.q.toLowerCase().includes(search);
+
+                if (this.currentFilter === 'all') return matchesSearch;
+                if (this.currentFilter === 'unanswered') return !ans && matchesSearch;
+                if (this.currentFilter === 'correct') return ans?.correct && matchesSearch;
+                if (this.currentFilter === 'incorrect') return !ans?.correct && ans && matchesSearch;
+                return matchesSearch;
+            },
+
+            setFilter(filter) {
+                this.currentFilter = filter;
+                document.querySelectorAll('.filter-pill').forEach(pill => pill.classList.remove('active'));
+                event.target.classList.add('active');
+                this.renderContent();
+            },
+
+            setSearch(text) {
+                this.currentSearch = text;
+                this.renderContent();
+            },
+
+            answerQuestion(examId, qId, selectedIdx) {
+                const exam = this.exams.find(e => e.id === examId);
+                const q = exam.questions.find(q => q.id === qId);
+                const correct = selectedIdx === q.answer;
+
+                this.state[examId].answers[qId] = {
+                    selected: selectedIdx,
+                    correct: correct,
+                    dontKnow: false
+                };
+
+                if (!correct) {
+                    this.state[examId].flaggedForReview.add(qId);
+                } else {
+                    this.state[examId].flaggedForReview.delete(qId);
+                }
+
+                this.saveState();
+                this.renderTabs();
+                this.renderContent();
+            },
+
+            dontKnow(examId, qId) {
+                this.state[examId].answers[qId] = {
+                    selected: null,
+                    correct: false,
+                    dontKnow: true
+                };
+                this.state[examId].flaggedForReview.add(qId);
+                this.saveState();
+                this.renderTabs();
+                this.renderContent();
+            },
+
+            resetExam(examId) {
+                if (confirm('Are you sure? This will clear all answers for this exam.')) {
+                    this.state[examId] = {
+                        answers: {},
+                        flaggedForReview: new Set()
+                    };
+                    this.saveState();
+                    this.renderTabs();
+                    this.renderContent();
+                }
+            },
+
+            resetAll() {
+                if (confirm('Are you sure? This will reset ALL exams and the review bank.')) {
+                    this.exams.forEach(exam => {
+                        this.state[exam.id] = {
+                            answers: {},
+                            flaggedForReview: new Set()
+                        };
+                    });
+                    this.saveState();
+                    this.renderTabs();
+                    this.renderContent();
+                }
+            }
+        };
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+            document.querySelector('.tab-button').click();
+        });
+    </script>
+</body>
+</html>

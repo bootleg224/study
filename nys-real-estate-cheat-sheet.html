@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYS Real Estate Cheat Sheet</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f1f5f9;
+            color: #1e293b;
+            line-height: 1.6;
+        }
+
+        /* Sticky Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: white;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 1rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        h1 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .jump-to {
+            padding: 0.5rem;
+            border: 1px solid #cbd5e1;
+            border-radius: 0.375rem;
+            background: white;
+            color: #1e293b;
+            font-size: 0.875rem;
+            cursor: pointer;
+        }
+
+        .jump-to:hover {
+            background-color: #f8fafc;
+        }
+
+        /* Main Container */
+        main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1rem;
+            padding-bottom: 2rem;
+        }
+
+        /* Chapter Card */
+        .chapter {
+            background: white;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            border-left: 4px solid #3b82f6;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .chapter:nth-child(2) {
+            border-left-color: #3b82f6;
+        }
+        .chapter:nth-child(3) {
+            border-left-color: #06b6d4;
+        }
+        .chapter:nth-child(4) {
+            border-left-color: #8b5cf6;
+        }
+        .chapter:nth-child(5) {
+            border-left-color: #ec4899;
+        }
+        .chapter:nth-child(6) {
+            border-left-color: #f59e0b;
+        }
+        .chapter:nth-child(7) {
+            border-left-color: #10b981;
+        }
+
+        /* Chapter Header (Clickable) */
+        .chapter-header {
+            padding: 1.25rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            user-select: none;
+            background: #f8fafc;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .chapter-header:hover {
+            background-color: #f1f5f9;
+        }
+
+        .chapter-header h2 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .toggle-icon {
+            font-size: 1.25rem;
+            transition: transform 0.2s;
+            color: #64748b;
+        }
+
+        .chapter.expanded .toggle-icon {
+            transform: rotate(180deg);
+        }
+
+        /* Chapter Content */
+        .chapter-content {
+            max-height: 10000px;
+            overflow: hidden;
+            opacity: 1;
+            transition: opacity 0.2s;
+        }
+
+        .chapter-content-inner {
+            padding: 1.25rem;
+        }
+
+        /* List Styling */
+        ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        li {
+            margin-bottom: 0.75rem;
+            padding-left: 1.5rem;
+            position: relative;
+            color: #1e293b;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        li:before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: #3b82f6;
+            font-weight: bold;
+        }
+
+        li:last-child {
+            margin-bottom: 0;
+        }
+
+        /* Bold Terms */
+        strong {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        /* Highlight Pills */
+        .pill {
+            background-color: #eff6ff;
+            color: #1e40af;
+            padding: 0.125rem 0.5rem;
+            border-radius: 0.25rem;
+            font-weight: 500;
+            display: inline-block;
+            font-size: 0.9em;
+        }
+
+        /* Muted Text */
+        .muted {
+            color: #64748b;
+            font-size: 0.9em;
+        }
+
+        /* Nested Lists */
+        ul ul {
+            margin-top: 0.5rem;
+            margin-left: 0.5rem;
+            padding-left: 0;
+        }
+
+        ul ul li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .header-content {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            h1 {
+                font-size: 1.1rem;
+            }
+
+            .jump-to {
+                width: 100%;
+            }
+
+            main {
+                padding: 0.75rem;
+                padding-bottom: 1.5rem;
+            }
+
+            .chapter {
+                margin-bottom: 1rem;
+            }
+
+            .chapter-header {
+                padding: 1rem;
+            }
+
+            .chapter-header h2 {
+                font-size: 0.95rem;
+            }
+
+            .chapter-content-inner {
+                padding: 1rem;
+            }
+
+            li {
+                font-size: 0.9rem;
+                margin-bottom: 0.65rem;
+            }
+        }
+
+        @media (max-width: 375px) {
+            h1 {
+                font-size: 1rem;
+            }
+
+            .chapter-header h2 {
+                font-size: 0.9rem;
+            }
+
+            li {
+                font-size: 0.85rem;
+                padding-left: 1.25rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="header-content">
+            <h1>NYS Real Estate Cheat Sheet</h1>
+            <select class="jump-to" id="jumpToSelect">
+                <option value="">Jump to Chapter...</option>
+                <option value="chapter-1">Chapter 1: License Law</option>
+                <option value="chapter-2">Chapter 2: Law of Agency</option>
+                <option value="chapter-3a">Chapter 3A: Estates & Interests</option>
+                <option value="chapter-3b">Chapter 3B: Liens & Easements</option>
+                <option value="chapter-3c">Chapter 3C: Deeds</option>
+                <option value="chapter-3d">Chapter 3D: Title & Closing</option>
+                <option value="chapter-4">Chapter 4: Contracts & Leases</option>
+                <option value="chapter-5">Chapter 5: Real Estate Finance</option>
+            </select>
+        </div>
+    </header>
+
+    <main>
+        <!-- CHAPTER 1 -->
+        <div class="chapter expanded" id="chapter-1">
+            <div class="chapter-header">
+                <h2>Chapter 1: License Law & Regulations</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="chapter-content">
+                <div class="chapter-content-inner">
+                    <ul>
+                        <li><strong>NYS Dept of State:</strong> Issues licenses, pocket cards, disciplinary action. Article 12-A outlines DOS roles.</li>
+                        <li><strong>Attorney General:</strong> Prosecutes criminal violations of Real Property Law.</li>
+                        <li><strong>NY Court of Appeals:</strong> Highest court in NYS.</li>
+                        <li><strong>Misdemeanor:</strong> Violating Real Property Law = misdemeanor (Section 442-e).</li>
+                        <li><strong>DOS Penalties:</strong> Suspend/revoke license. Fine up to <span class="pill">$1,000</span>.</li>
+                        <li><strong>Salesperson License:</strong> Must be <span class="pill">18+</span>. Valid <span class="pill">2 years</span>. Renew via eAccessNY. <span class="pill">22.5 hours</span> CE before renewal. Fail to renew in 2 years = expired, must retake exam. Acts on behalf of broker only.</li>
+                        <li><strong>Broker License:</strong> Need <span class="pill">2 years</span> as salesperson + age <span class="pill">20+</span> + <span class="pill">45-hour</span> broker course (<span class="pill">120 total hours</span>) + pass broker exam. Renewed every <span class="pill">2 years</span>.</li>
+                        <li><strong>Associate Broker:</strong> Same requirements as broker, but status in firm = salesperson.</li>
+                        <li><strong>Pocket Card:</strong> Issued by DOS. Salesperson's license held by sponsoring broker. Must carry pocket card at all times.</li>
+                        <li><strong>Sponsor Suspension:</strong> If broker's license suspended/revoked, all salespersons under that broker are also suspended ("discontinuance of association").</li>
+                        <li><strong>License Exemptions:</strong>
+                            <ul>
+                                <li>Attorneys (representing clients only; need broker license to employ salespersons)</li>
+                                <li>Public officers (official duties)</li>
+                                <li>Persons under court judgment/order</li>
+                            </ul>
+                        </li>
+                        <li><strong>Advertising:</strong> Section 175.25 — All ads must show broker name and phone number. Must indicate geographical area. Blind ads (no broker info) are <span class="pill">ILLEGAL</span> in NYS.</li>
+                        <li><strong>Stigmatized Property:</strong> Article 443-a — Sellers/agents do NOT have to disclose: occupants with AIDS/illnesses, or deaths on property (natural, accident, suicide, homicide, crime).</li>
+                        <li><strong>Record Keeping:</strong> Brokers must maintain records of all transactions for at least <span class="pill">3 years</span>.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 2 -->
+        <div class="chapter expanded" id="chapter-2">
+            <div class="chapter-header">
+                <h2>Chapter 2: Law of Agency</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="chapter-content">
+                <div class="chapter-content-inner">
+                    <ul>
+                        <li><strong>Types of Agency:</strong>
+                            <ul>
+                                <li><strong>General Agent:</strong> Authorized to transact every kind of business (e.g., Property Manager)</li>
+                                <li><strong>Special Agent:</strong> Limited authority, such as listing (e.g., Real Estate Agent/Broker)</li>
+                                <li><strong>Universal Agent:</strong> Complete authority over any activity (e.g., Power of Attorney)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Agent/Client Relationships:</strong> Buyer/seller = Principal or Client. Broker = Agent. Salesperson = Sub-agent of broker.</li>
+                        <li><strong>Buyer Agency:</strong> Purchaser hires broker. Buyer = principal, broker = agent. Buyer Representation Form should be signed.</li>
+                        <li><strong>Fiduciary Duties (OLD CAR):</strong>
+                            <ul>
+                                <li><strong>Obedience:</strong> Follow client's legal instructions</li>
+                                <li><strong>Loyalty:</strong> Work in client's best interests</li>
+                                <li><strong>Disclosure:</strong> Promptly communicate all info/offers</li>
+                                <li><strong>Confidentiality:</strong> Don't reveal confidential info without consent</li>
+                                <li><strong>Accountability:</strong> Account for all money/property</li>
+                                <li><strong>Reasonable Care:</strong> Possess necessary skills and training</li>
+                            </ul>
+                        </li>
+                        <li><strong>Agency Disclosure Form:</strong> Written explanation signed by buyer/seller. Known as "NYS Disclosure Form for Buyer and Seller." Outlines agent duties, fiduciary duty, allows advance consent to dual agency. NOT required for vacant land. Must be presented at first substantive contact (Section 443).</li>
+                        <li><strong>Refusal to Sign:</strong> Document names, time, date, reasons. Complete declaration form, retain copy <span class="pill">3 years</span>. Declaration states they refused to sign.</li>
+                        <li><strong>Dual Agency:</strong> Broker represents both buyer and seller. Permitted in NYS with advanced informed consent of BOTH parties. Puts loyalty at risk. Undisclosed dual agency = <span class="pill">ILLEGAL</span>.</li>
+                        <li><strong>Designated Agents:</strong> Broker assigns different agents to represent each side. Reduces risk of violating fiduciary duties.</li>
+                        <li><strong>Estoppel:</strong> Agency by estoppel — principal doesn't stop someone from representing their interests, creating agency relationship.</li>
+                        <li><strong>Listing Contracts:</strong>
+                            <ul>
+                                <li><strong>Exclusive Right to Sell:</strong> Most security for broker. Broker gets commission even if seller finds buyer.</li>
+                                <li><strong>Exclusive Agency:</strong> Seller works exclusively with broker, BUT no commission if seller finds buyer themselves.</li>
+                                <li><strong>Open Listing:</strong> Any broker can bring buyer. Only producing broker gets commission. Riskiest for broker. Example of unilateral contract.</li>
+                                <li><strong>Net Listing:</strong> Broker's commission = anything above specified net to seller. <span class="pill">ILLEGAL</span> in NY.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Commissions:</strong> Salespersons DO NOT collect money/commissions. All commissions paid to broker, who pays salesperson. Commissions are always negotiable. Based on sales price (not listing price). Earned when agent finds "ready, willing and able buyer."</li>
+                        <li><strong>Independent Contractor:</strong> Salesperson works under sponsoring broker as independent contractor. Broker does not withhold taxes. Salesperson pays own taxes, social security, self-employment tax. Compensation not based on hours. Can work from home, have outside employment. Broker supervises but doesn't direct/control. Either party can terminate anytime. Broker files <span class="pill">1099-MISC</span> for salespersons earning <span class="pill">$600+</span>. If not independent contractor, broker must withhold income taxes.</li>
+                        <li><strong>Vicarious Liability:</strong> One party held partly responsible for unlawful actions of third party. Broker vicariously liable only when broker had actual knowledge or retained benefits knowing of wrongdoing (Section 442-c).</li>
+                        <li><strong>Sherman Anti-Trust Act — Illegal:</strong>
+                            <ul>
+                                <li>Price fixing</li>
+                                <li>Group boycotts</li>
+                                <li>Market allocation</li>
+                                <li>Tie-in arrangements</li>
+                            </ul>
+                        </li>
+                        <li><strong>Misrepresentation:</strong> Intentionally false statement to induce contract. Requires: false representation of material fact + person knew/should have known it false + person acts on it + person relies on it. Positive misrepresentation = broker concealed defect. Self-dealing = also positive misrepresentation. Unintentional misrepresentation = broker doesn't know if true or false.</li>
+                        <li><strong>Property Condition Disclosure:</strong> Seller must submit to buyer BEFORE signing contract of sale.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 3A -->
+        <div class="chapter expanded" id="chapter-3a">
+            <div class="chapter-header">
+                <h2>Chapter 3A: Estates & Interests</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="chapter-content">
+                <div class="chapter-content-inner">
+                    <ul>
+                        <li><strong>Real vs Personal Property:</strong> Real property = land + improvements + bundle of rights. Personal property = everything else (also called chattel).</li>
+                        <li><strong>Fixtures:</strong> Personal property permanently attached to land, becomes real property. Examples: chandelier, custom shelves, wall-to-wall carpet, plumbing.</li>
+                        <li><strong>Trade Fixtures:</strong> Business operator's items in rented space. Remain personal property. Business takes them when leaving. Example: display case.</li>
+                        <li><strong>Fee Simple Absolute:</strong> Most complete ownership. Unconditional power of disposition. Descends to heirs. Most NY properties are fee simple.</li>
+                        <li><strong>Ownership in Severalty:</strong> Title in one person/entity only. "Severed" from all others.</li>
+                        <li><strong>Co-ownership:</strong>
+                            <ul>
+                                <li><strong>Joint Tenancy:</strong> Two or more persons, undivided interest WITH right of survivorship. Requires <span class="pill">4 unities</span> (Time, Title, Interest, Possession).</li>
+                                <li><strong>Tenancy in Common:</strong> Two or more persons, undivided interest WITHOUT survivorship. Inheritable.</li>
+                                <li><strong>Tenancy by Entirety:</strong> Married couples only. Right of survivorship. If one dies, other gets full ownership. When surviving spouse dies, goes to children.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Life Estates:</strong> Ownership for someone's lifetime. Form of fee simple. Example: Joe grants property to Sarah until Nancy dies. When Nancy dies, property reverts to Joe/heirs.</li>
+                        <li><strong>Leasehold Estates:</strong> Non-freehold, limited duration. Right of possession/control but NOT title.
+                            <ul>
+                                <li><strong>Estate for Years:</strong> Fixed period. Auto-terminates. Most residential leases.</li>
+                                <li><strong>Periodic Estate:</strong> Auto-renews unless notice given.</li>
+                                <li><strong>Estate at Will:</strong> Unknown/open-ended duration.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Water Rights:</strong>
+                            <ul>
+                                <li><strong>Littoral:</strong> Lake (stationary)</li>
+                                <li><strong>Riparian:</strong> River (flowing)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Supply & Demand:</strong> Demand > supply = prices up. Supply > demand = prices down.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 3B -->
+        <div class="chapter expanded" id="chapter-3b">
+            <div class="chapter-header">
+                <h2>Chapter 3B: Liens & Easements</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="chapter-content">
+                <div class="chapter-content-inner">
+                    <ul>
+                        <li><strong>Easement:</strong> Right to cross/use someone's property. Nonpossessory interest. Common term = "right-of-way." Easements "run with the land."
+                            <ul>
+                                <li><strong>Easement in Gross:</strong> No requirement to own adjoining land. Used by utility companies.</li>
+                                <li><strong>Easement by Necessity:</strong> Landlocked property needs access across neighbor's land.</li>
+                                <li><strong>Easement by Prescription:</strong> Use without permission, open and obvious, uninterrupted for <span class="pill">10 years</span> (NY).</li>
+                                <li><strong>Easement by Implication:</strong> Arises from conduct of parties. Example: selling mineral rights implies access to mine.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Encroachments:</strong> Building/structure crosses property line. Examples: fence, tree, deck, garage/shed built over line.</li>
+                        <li><strong>Liens:</strong> Claim/charge against property for debt.
+                            <ul>
+                                <li><strong>Mechanic's Lien:</strong> For labor/materials to improve property. Involuntary, specific lien.</li>
+                                <li><strong>Mortgage Lien:</strong> Most common lien. Voluntary, specific. Lender can foreclose if not paid.</li>
+                                <li><strong>Tax Lien:</strong> Delinquent property taxes. <span class="pill">HIGHEST PRIORITY</span> among all liens (even above mortgage).</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 3C -->
+        <div class="chapter expanded" id="chapter-3c">
+            <div class="chapter-header">
+                <h2>Chapter 3C: Deeds</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="chapter-content">
+                <div class="chapter-content-inner">
+                    <ul>
+                        <li><strong>Deeds:</strong> Instrument of conveyance. Grantor = Seller. Grantee = Buyer. Grantor must be <span class="pill">18+</span> and mentally competent.</li>
+                        <li><strong>Essential Elements:</strong> In writing (Statute of Frauds), grantor, grantee, granting clause (words of conveyance), consideration, legal description, habendum clause ("to have and to hold"), limitations/subject-to clause, grantor's signature (grantee does NOT sign), acknowledgement/recording (notarized), delivery and acceptance.</li>
+                        <li><strong>Conveyance:</strong> Transfer of title. Deed = instrument of conveyance.</li>
+                        <li><strong>Intestate Succession:</strong> No valid will — court distributes to heirs. Order: spouse, children, parents, siblings, then more distant. Administrator/administratrix appointed by court.</li>
+                        <li><strong>Legal Description:</strong> Must be in deed. Describes location and lot size. <span class="pill">3 types</span>: Metes and bounds, Lot and block, Monuments. Surveys use metes and bounds method.</li>
+                        <li><strong>Full Covenant & Warranty Deed:</strong> Broadest guarantee, greatest protection. <span class="pill">6 covenants</span>: Seisin, Right to convey, Against encumbrances, Quiet enjoyment, Further assurances, Warranty.</li>
+                        <li><strong>Deed Restrictions:</strong> Encumbrance on real property. Limits use (e.g., no liquor sales, size/type restrictions). Form = restrictive covenants (CC&Rs).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 3D -->
+        <div class="chapter expanded" id="chapter-3d">
+            <div class="chapter-header">
+                <h2>Chapter 3D: Title & Closing</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="chapter-content">
+                <div class="chapter-content-inner">
+                    <ul>
+                        <li><strong>Title:</strong> Legal right to ownership.</li>
+                        <li><strong>Chain of Title:</strong> Sequence of historical transfers back to original owner.</li>
+                        <li><strong>Abstract of Title:</strong> Condensed history/summary of all links in chain.</li>
+                        <li><strong>Deed:</strong> Official document to transfer ownership. Evidence of ownership. Seller's attorney prepares new deed for closing.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 4 -->
+        <div class="chapter expanded" id="chapter-4">
+            <div class="chapter-header">
+                <h2>Chapter 4: Contracts & Leases</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="chapter-content">
+                <div class="chapter-content-inner">
+                    <ul>
+                        <li><strong>Contract Requirements:</strong> Must be <span class="pill">18+</span> in NYS. Minors = voidable contract. Must be mentally and emotionally capable.</li>
+                        <li><strong>Purchaser Signature:</strong> Purchaser signs contract of sale first (they're making the offer).</li>
+                        <li><strong>Bi-lateral vs Uni-lateral:</strong> Bi-lateral = two parties, most RE contracts. Uni-lateral = one party promises to pay if other performs (e.g., open listing).</li>
+                        <li><strong>Down Payment:</strong> Portion paid in cash, not part of mortgage. Must be in separate escrow account. Held by listing agent (seller's broker) or seller's attorney.</li>
+                        <li><strong>Earnest Money Deposit:</strong> Shows intent to purchase. Also called binder, good faith deposit, escrow deposit. Usually binding.</li>
+                        <li><strong>Proration:</strong> Division of settlement costs (taxes, fuel, water/sewer, rent, security deposits) between buyer and seller.</li>
+                        <li><strong>Discharge of Contracts:</strong>
+                            <ul>
+                                <li>Agreement of parties (release of contract)</li>
+                                <li>Novation (replacing obligation/party)</li>
+                                <li>Full performance (most common)</li>
+                                <li>Impossibility of performance (e.g., property destroyed by fire)</li>
+                                <li>Operation of law (statute of limitations)</li>
+                            </ul>
+                        </li>
+                        <li><strong>Contract Remedies:</strong>
+                            <ul>
+                                <li><strong>Specific Performance:</strong> Court orders completion</li>
+                                <li><strong>Compensatory Damages:</strong> Actual money lost</li>
+                                <li><strong>Liquidated Damages:</strong> Pre-agreed in contract</li>
+                                <li><strong>Reformation:</strong> Court rewrites contract</li>
+                            </ul>
+                        </li>
+                        <li><strong>Right of First Refusal:</strong> Added to contract/lease. Holder can match any third-party offer or forfeit claim.</li>
+                        <li><strong>Leases — Use Provisions:</strong> Tenant must use space for intended purpose.</li>
+                        <li><strong>Assignment vs Sublease:</strong>
+                            <ul>
+                                <li><strong>Assignment:</strong> Assignee pays landlord directly, takes full responsibility.</li>
+                                <li><strong>Sublease:</strong> Original tenant still responsible to landlord, sub-lessee pays tenant.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Eviction:</strong> Legal proceeding to recover possession.
+                            <ul>
+                                <li><strong>Actual Eviction:</strong> Landlord removes tenant without court. Wrongful self-help.</li>
+                                <li><strong>Constructive Eviction:</strong> Landlord makes property unfit/unsuitable (e.g., refusing to fix broken toilet).</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CHAPTER 5 -->
+        <div class="chapter expanded" id="chapter-5">
+            <div class="chapter-header">
+                <h2>Chapter 5: Real Estate Finance</h2>
+                <span class="toggle-icon">▼</span>
+            </div>
+            <div class="chapter-content">
+                <div class="chapter-content-inner">
+                    <ul>
+                        <li><strong>Mortgagor:</strong> Borrower. <strong>Mortgagee:</strong> Lender. (Homeowner gives bank the mortgage document as security.)</li>
+                        <li><strong>Loan Types:</strong>
+                            <ul>
+                                <li><strong>Fixed-Rate / Fully Amortized:</strong> Most common. Monthly payments of principal + interest. Balance reaches $0 at end of term.</li>
+                                <li><strong>Straight Loan / Term Loan:</strong> Interest-only. Full balance due at end.</li>
+                                <li><strong>ARM (Adjustable Rate):</strong> Payment fluctuates with index. High-risk for borrower.</li>
+                                <li><strong>Blanket Mortgage:</strong> Two+ parcels as security. Has release clause.</li>
+                                <li><strong>Purchase Money Mortgage:</strong> Seller financing. Seller = mortgagee, buyer = mortgagor.</li>
+                                <li><strong>Wraparound Mortgage:</strong> Seller extends junior mortgage wrapping around existing.</li>
+                                <li><strong>Bridge/Swing Loan:</strong> Short-term (2 weeks to 3 years). Buy new property before selling current.</li>
+                                <li><strong>Graduated Payment (GPM):</strong> Low early payments, increase over time. Early payments don't cover all interest (negative amortization).</li>
+                                <li><strong>Construction Mortgage:</strong> Interim/temporary, short-term for improvements.</li>
+                            </ul>
+                        </li>
+                        <li><strong>Negative Amortization:</strong> Payment less than full interest. Unpaid interest added to principal. Balance increases.</li>
+                        <li><strong>Conventional vs Government Loans:</strong> Conventional = no government participation. LTV > <span class="pill">80%</span> requires PMI. Government = FHA (most common govt loan, MIP paid upfront), VA (for veterans).</li>
+                        <li><strong>Prepayment Penalty:</strong> Borrower can't pay off early without penalty.</li>
+                        <li><strong>Primary vs Secondary Mortgage Markets:</strong> Primary = where loans originate (bank gives loan). Secondary = where originated loans are bought and sold.</li>
+                        <li><strong>RESPA (Regulation X):</strong> Consumer protection (1974). Helps consumers shop for settlement services. Eliminates kickbacks/referral fees.</li>
+                        <li><strong>TILA (Regulation Z):</strong> Truth in Lending Act (1968). Requires <span class="pill">4 disclosures</span>: Annual percentage rate, Finance charge, Amount financed, Total amount of payments. Only APR can be stated in ads without full disclosure.</li>
+                        <li><strong>LTV:</strong> Loan-to-Value ratio = loan amount / purchase price. Example: $400K loan on $500K property = <span class="pill">80% LTV</span>.</li>
+                        <li><strong>Points & Buydowns:</strong> <span class="pill">1 point</span> = <span class="pill">1%</span> of loan amount. Buydown = pay points upfront for lower interest rate. Also called discount points.</li>
+                        <li><strong>Usury Laws:</strong> Govern max interest rate on loans.</li>
+                        <li><strong>Inflation:</strong> Increase in money/credit relative to goods = higher prices.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Toggle chapter expand/collapse
+        document.querySelectorAll('.chapter-header').forEach(header => {
+            header.addEventListener('click', function() {
+                const chapter = this.closest('.chapter');
+                chapter.classList.toggle('expanded');
+            });
+        });
+
+        // Jump to chapter dropdown
+        document.getElementById('jumpToSelect').addEventListener('change', function(e) {
+            if (this.value) {
+                const element = document.getElementById(this.value);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    element.classList.add('expanded');
+                    this.value = '';
+                }
+            }
+        });
+    </script>
+</body>
+</html>

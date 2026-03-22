@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYS Real Estate Exam Prep</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f1f5f9;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 48px;
+        }
+
+        .hero-icon {
+            font-size: 56px;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 8px;
+        }
+
+        .hero p {
+            font-size: 1.05rem;
+            color: #64748b;
+            max-width: 420px;
+            line-height: 1.5;
+        }
+
+        .cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        @media (min-width: 640px) {
+            .cards { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 32px 24px;
+            text-align: center;
+            text-decoration: none;
+            color: inherit;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.15s, box-shadow 0.15s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.08);
+        }
+
+        .card-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .card-icon.exams    { background: #dbeafe; }
+        .card-icon.flash    { background: #fef3c7; }
+        .card-icon.guide    { background: #d1fae5; }
+
+        .card h2 {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #0f172a;
+        }
+
+        .card p {
+            font-size: 0.9rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        .card .arrow {
+            margin-top: auto;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #3b82f6;
+        }
+
+        footer {
+            margin-top: 48px;
+            font-size: 0.8rem;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="hero">
+        <div class="hero-icon">🏠</div>
+        <h1>NYS Real Estate Exam Prep</h1>
+        <p>Everything you need to pass the New York State Real Estate Salesperson exam — all in one place.</p>
+    </div>
+
+    <div class="cards">
+        <a class="card" href="ny-real-estate-exams.html">
+            <div class="card-icon exams">📝</div>
+            <h2>Practice Exams</h2>
+            <p>Test your knowledge with timed, exam-style quizzes across all major topics.</p>
+            <span class="arrow">Start practicing →</span>
+        </a>
+
+        <a class="card" href="nys-real-estate-flashcards.html">
+            <div class="card-icon flash">🃏</div>
+            <h2>Flashcards</h2>
+            <p>Swipe through key terms and concepts to reinforce your memory.</p>
+            <span class="arrow">Study cards →</span>
+        </a>
+
+        <a class="card" href="nys-real-estate-cheat-sheet.html">
+            <div class="card-icon guide">📖</div>
+            <h2>Study Guide</h2>
+            <p>A comprehensive cheat sheet covering every topic on the exam.</p>
+            <span class="arrow">Read guide →</span>
+        </a>
+    </div>
+
+    <footer>NYS Real Estate Exam Prep</footer>
+
+</body>
+</html>

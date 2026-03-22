@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>NYS Real Estate Flashcards</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f1f5f9; color: #1e293b; min-height: 100dvh;
+    overflow: hidden; touch-action: pan-y;
+    display: flex; flex-direction: column;
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; background: #fff; border-bottom: 1px solid #e2e8f0;
+    flex-shrink: 0;
+  }
+  .header h1 { font-size: 16px; font-weight: 600; color: #1e293b; }
+  .header .pill {
+    font-size: 12px; background: #e2e8f0; color: #475569; padding: 4px 10px; border-radius: 999px;
+  }
+
+  /* ── Screens ── */
+  .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+  .screen.active { display: flex; }
+
+  /* ── Home Screen ── */
+  #home { justify-content: center; align-items: center; gap: 20px; padding: 24px; }
+  #home h2 { font-size: 28px; font-weight: 700; text-align: center; }
+  #home p { color: #64748b; text-align: center; max-width: 300px; line-height: 1.5; }
+  .btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    padding: 14px 28px; border-radius: 12px; border: none; font-size: 16px;
+    font-weight: 600; cursor: pointer; width: 100%; max-width: 280px;
+    transition: transform 0.1s;
+  }
+  .btn:active { transform: scale(0.97); }
+  .btn-primary { background: #3b82f6; color: #fff; }
+  .btn-secondary { background: #e2e8f0; color: #334155; }
+  .btn-success { background: #22c55e; color: #fff; }
+  .btn-danger { background: #ef4444; color: #fff; }
+
+  .home-options { display: flex; flex-direction: column; gap: 12px; width: 100%; max-width: 280px; }
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: #fff; padding: 12px 16px; border-radius: 12px; border: 1px solid #e2e8f0;
+  }
+  .toggle-row label { font-size: 14px; color: #475569; }
+  .toggle {
+    width: 48px; height: 28px; background: #cbd5e1; border-radius: 999px;
+    position: relative; cursor: pointer; transition: background 0.2s;
+    border: none; outline: none;
+  }
+  .toggle.on { background: #3b82f6; }
+  .toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px;
+    width: 22px; height: 22px; background: #fff; border-radius: 50%;
+    transition: transform 0.2s;
+  }
+  .toggle.on::after { transform: translateX(20px); }
+
+  /* ── Category Filter ── */
+  .category-filter {
+    display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+    max-width: 340px; margin-top: 4px;
+  }
+  .cat-chip {
+    font-size: 11px; padding: 5px 10px; border-radius: 999px;
+    border: 1px solid #cbd5e1; background: transparent; color: #64748b;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .cat-chip.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+
+  /* ── Play Screen ── */
+  #play { position: relative; }
+  .progress-bar {
+    height: 3px; background: #e2e8f0; flex-shrink: 0;
+  }
+  .progress-fill { height: 100%; background: #3b82f6; transition: width 0.3s; }
+
+  .card-area {
+    flex: 1; display: flex; align-items: center; justify-content: center;
+    padding: 20px; position: relative; overflow: hidden;
+  }
+
+  .card {
+    width: 100%; max-width: 380px; min-height: 260px;
+    background: #fff; border-radius: 20px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 32px 24px; text-align: center;
+    position: relative; cursor: grab;
+    transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.35s;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08), 0 1px 4px rgba(0,0,0,0.04);
+    will-change: transform;
+  }
+  .card.dragging { transition: none; cursor: grabbing; }
+  .card.exit-right { transform: translateX(120%) rotate(12deg); opacity: 0; }
+  .card.exit-left { transform: translateX(-120%) rotate(-12deg); opacity: 0; }
+
+  .card-category {
+    position: absolute; top: 14px; left: 16px;
+    font-size: 10px; text-transform: uppercase; letter-spacing: 1px;
+    color: #94a3b8; font-weight: 600;
+  }
+  .card-number {
+    position: absolute; top: 14px; right: 16px;
+    font-size: 12px; color: #94a3b8;
+  }
+  .card-front { font-size: 20px; font-weight: 600; line-height: 1.4; color: #1e293b; }
+  .card-back {
+    font-size: 18px; color: #059669; font-weight: 500; line-height: 1.4;
+    margin-top: 16px; padding-top: 16px; border-top: 1px solid #e2e8f0;
+  }
+  .card-back.hidden { display: none; }
+
+  .tap-hint {
+    color: #94a3b8; font-size: 12px; margin-top: 12px;
+    position: absolute; bottom: 16px;
+  }
+
+  /* Swipe indicators */
+  .swipe-indicator {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    font-size: 14px; font-weight: 700; padding: 8px 14px;
+    border-radius: 8px; opacity: 0; transition: opacity 0.15s;
+    pointer-events: none; z-index: 10;
+  }
+  .swipe-correct { right: 20px; color: #22c55e; border: 2px solid #22c55e; }
+  .swipe-wrong { left: 20px; color: #ef4444; border: 2px solid #ef4444; }
+
+  /* Bottom controls */
+  .play-controls {
+    display: flex; gap: 16px; padding: 16px 24px 24px; justify-content: center;
+    flex-shrink: 0;
+  }
+  .ctrl-btn {
+    flex: 1; max-width: 160px; padding: 14px; border-radius: 14px;
+    border: none; font-size: 15px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: transform 0.1s;
+  }
+  .ctrl-btn:active { transform: scale(0.95); }
+  .ctrl-wrong { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .ctrl-right { background: #f0fdf4; color: #16a34a; border: 1px solid #bbf7d0; }
+
+  .play-footer-hint {
+    text-align: center; color: #94a3b8; font-size: 11px; padding-bottom: 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── Results Screen ── */
+  #results { padding: 24px; overflow-y: auto; gap: 16px; }
+  .results-header { text-align: center; }
+  .results-header h2 { font-size: 24px; margin-bottom: 4px; }
+  .results-header h2 { color: #1e293b; }
+  .results-header p { color: #64748b; font-size: 14px; }
+
+  .score-ring {
+    width: 120px; height: 120px; margin: 8px auto 0;
+    position: relative; display: flex; align-items: center; justify-content: center;
+  }
+  .score-ring svg { position: absolute; top: 0; left: 0; transform: rotate(-90deg); }
+  .score-ring .score-text { font-size: 32px; font-weight: 700; }
+  .score-ring .score-text { color: #1e293b; }
+  .score-ring .score-label { font-size: 11px; color: #64748b; }
+
+  .stats-row { display: flex; gap: 12px; justify-content: center; }
+  .stat-box {
+    background: #fff; border-radius: 12px; padding: 12px 20px; text-align: center;
+    flex: 1; max-width: 140px; border: 1px solid #e2e8f0;
+  }
+  .stat-box .num { font-size: 22px; font-weight: 700; }
+  .stat-box .lbl { font-size: 11px; color: #64748b; margin-top: 2px; }
+  .stat-box.correct .num { color: #22c55e; }
+  .stat-box.wrong .num { color: #ef4444; }
+
+  .wrong-review { display: flex; flex-direction: column; gap: 10px; padding-bottom: 80px; }
+  .wrong-review h3 { font-size: 16px; color: #dc2626; margin-top: 8px; }
+  .wrong-card {
+    background: #fff; border-radius: 12px; padding: 14px 16px;
+    border-left: 3px solid #ef4444; border: 1px solid #e2e8f0; border-left: 3px solid #ef4444;
+  }
+  .wrong-card .wq { font-size: 14px; font-weight: 600; margin-bottom: 4px; color: #1e293b; }
+  .wrong-card .wa { font-size: 13px; color: #059669; }
+
+  .results-actions {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    display: flex; gap: 10px; padding: 16px 24px;
+    background: linear-gradient(transparent, #f1f5f9 30%);
+    padding-top: 40px;
+  }
+  .results-actions .btn { font-size: 14px; padding: 12px; }
+
+  /* Flip animation */
+  @keyframes flipIn {
+    0% { transform: rotateY(90deg) scale(0.9); opacity: 0; }
+    100% { transform: rotateY(0) scale(1); opacity: 1; }
+  }
+  .card.flip-in { animation: flipIn 0.3s ease-out; }
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+  <h1>NYS Real Estate</h1>
+  <div class="pill" id="deckCount">100 cards</div>
+</div>
+
+<!-- Home Screen -->
+<div class="screen active" id="home">
+  <h2>Flashcard Prep</h2>
+  <p>Swipe right if you know it, left if you don't. Review what you missed at the end.</p>
+  <div class="category-filter" id="catFilter"></div>
+  <div class="home-options">
+    <div class="toggle-row">
+      <label>Shuffle cards</label>
+      <button class="toggle on" id="shuffleToggle" onclick="this.classList.toggle('on')"></button>
+    </div>
+  </div>
+  <div class="btn btn-primary" onclick="startPlay()">Start</div>
+</div>
+
+<!-- Play Screen -->
+<div class="screen" id="play">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="card-area" id="cardArea">
+    <div class="swipe-indicator swipe-wrong" id="indWrong">MISS</div>
+    <div class="swipe-indicator swipe-correct" id="indCorrect">GOT IT</div>
+    <div class="card" id="card">
+      <div class="card-category" id="cardCat"></div>
+      <div class="card-number" id="cardNum"></div>
+      <div class="card-front" id="cardFront"></div>
+      <div class="card-back hidden" id="cardBack"></div>
+      <div class="tap-hint" id="tapHint">Tap to reveal answer</div>
+    </div>
+  </div>
+  <div class="play-footer-hint">Swipe right = got it &nbsp;|&nbsp; Swipe left = missed</div>
+  <div class="play-controls">
+    <button class="ctrl-btn ctrl-wrong" onclick="markWrong()">✕ Missed</button>
+    <button class="ctrl-btn ctrl-right" onclick="markRight()">✓ Got it</button>
+  </div>
+</div>
+
+<!-- Results Screen -->
+<div class="screen" id="results">
+  <div class="results-header">
+    <h2>Session Complete</h2>
+    <p id="resultsSubtitle"></p>
+  </div>
+  <div class="score-ring">
+    <svg width="120" height="120" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="52" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+      <circle cx="60" cy="60" r="52" fill="none" stroke="#3b82f6" stroke-width="8"
+        stroke-dasharray="326.7" id="scoreArc" stroke-linecap="round"/>
+    </svg>
+    <div style="text-align:center">
+      <div class="score-text" id="scorePct">0%</div>
+      <div class="score-label">correct</div>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-box correct"><div class="num" id="statCorrect">0</div><div class="lbl">Correct</div></div>
+    <div class="stat-box wrong"><div class="num" id="statWrong">0</div><div class="lbl">Missed</div></div>
+  </div>
+  <div class="wrong-review" id="wrongReview"></div>
+  <div class="results-actions">
+    <div class="btn btn-danger" onclick="retryWrong()" id="retryBtn">Retry Missed</div>
+    <div class="btn btn-secondary" onclick="goHome()">Home</div>
+  </div>
+</div>
+
+<script>
+// ── Flashcard Data ──
+const ALL_CARDS = [
+  // AGENCY / LICENSE LAW (1-30)
+  {id:1,cat:"Agency / License Law",q:"Fiduciary duties acronym",a:"OLD CAR"},
+  {id:2,cat:"Agency / License Law",q:"O in OLD CAR",a:"Obedience"},
+  {id:3,cat:"Agency / License Law",q:"L in OLD CAR",a:"Loyalty"},
+  {id:4,cat:"Agency / License Law",q:"D in OLD CAR",a:"Disclosure"},
+  {id:5,cat:"Agency / License Law",q:"C in OLD CAR",a:"Confidentiality"},
+  {id:6,cat:"Agency / License Law",q:"A in OLD CAR",a:"Accountability"},
+  {id:7,cat:"Agency / License Law",q:"R in OLD CAR",a:"Reasonable care & diligence"},
+  {id:8,cat:"Agency / License Law",q:"First substantive contact triggers…",a:"Agency Disclosure Form"},
+  {id:9,cat:"Agency / License Law",q:"Dual agency requires…",a:"Informed written consent (both parties)"},
+  {id:10,cat:"Agency / License Law",q:"Agent owes fiduciary duties to…",a:"Principal"},
+  {id:11,cat:"Agency / License Law",q:"Subagent owes fiduciary duties to…",a:"Seller (principal)"},
+  {id:12,cat:"Agency / License Law",q:"Commingling",a:"Mixing client funds with broker funds"},
+  {id:13,cat:"Agency / License Law",q:"Conversion",a:"Using client funds for broker's own use"},
+  {id:14,cat:"Agency / License Law",q:"Misrepresentation",a:"False statement of material fact"},
+  {id:15,cat:"Agency / License Law",q:"Fraud",a:"Intentional misrepresentation + reliance + damages"},
+  {id:16,cat:"Agency / License Law",q:"Material fact",a:"A fact that affects value or decision-making"},
+  {id:17,cat:"Agency / License Law",q:"Puffing",a:"Opinion, not material fact"},
+  {id:18,cat:"Agency / License Law",q:"Broker can hold escrow funds?",a:"Yes (in trust/escrow account)"},
+  {id:19,cat:"Agency / License Law",q:"Salesperson can hold escrow funds?",a:"No (must be broker)"},
+  {id:20,cat:"Agency / License Law",q:"License issued by…",a:"NY Department of State"},
+  {id:21,cat:"Agency / License Law",q:"Client's deposit belongs to…",a:"Buyer until accepted and terms dictate handling"},
+  {id:22,cat:"Agency / License Law",q:"Listing broker represents…",a:"Seller"},
+  {id:23,cat:"Agency / License Law",q:"Buyer broker represents…",a:"Buyer"},
+  {id:24,cat:"Agency / License Law",q:"Disclosed dual agency means…",a:"Both parties know broker represents both"},
+  {id:25,cat:"Agency / License Law",q:"Undisclosed dual agency is…",a:"Illegal"},
+  {id:26,cat:"Agency / License Law",q:"Agency relationship is created by…",a:"Agreement/consent (express or implied)"},
+  {id:27,cat:"Agency / License Law",q:"Common agency exam trap word",a:'"Informed" consent'},
+  {id:28,cat:"Agency / License Law",q:"Confidentiality duty survives after agency ends?",a:"Yes"},
+  {id:29,cat:"Agency / License Law",q:"Agent must disclose known defects?",a:"Yes (material facts)"},
+  {id:30,cat:"Agency / License Law",q:"Stigmatized property disclosure?",a:'Generally not required unless asked directly'},
+
+  // FAIR HOUSING (31-45)
+  {id:31,cat:"Fair Housing",q:"Federal protected classes count",a:"7"},
+  {id:32,cat:"Fair Housing",q:"Federal protected class: Race",a:"Protected"},
+  {id:33,cat:"Fair Housing",q:"Federal protected class: Color",a:"Protected"},
+  {id:34,cat:"Fair Housing",q:"Federal protected class: Religion",a:"Protected"},
+  {id:35,cat:"Fair Housing",q:"Federal protected class: Sex",a:"Protected"},
+  {id:36,cat:"Fair Housing",q:"Federal protected class: National origin",a:"Protected"},
+  {id:37,cat:"Fair Housing",q:"Federal protected class: Disability",a:"Protected"},
+  {id:38,cat:"Fair Housing",q:"Federal protected class: Familial status",a:"Protected"},
+  {id:39,cat:"Fair Housing",q:"Steering",a:"Directing buyers/tenants to neighborhoods based on protected class"},
+  {id:40,cat:"Fair Housing",q:"Blockbusting",a:"Encouraging sale due to fear of protected class change"},
+  {id:41,cat:"Fair Housing",q:"Redlining",a:"Denying loans/insurance in certain neighborhoods"},
+  {id:42,cat:"Fair Housing",q:"Discriminatory advertising example",a:'"No kids" / "Adults only"'},
+  {id:43,cat:"Fair Housing",q:"Reasonable accommodation relates to…",a:"Disability"},
+  {id:44,cat:"Fair Housing",q:"Familial status includes…",a:"Presence of children under 18 / pregnancy"},
+  {id:45,cat:"Fair Housing",q:"Fair Housing Act enforced by…",a:"HUD (federal)"},
+
+  // CONTRACTS / LEASES (46-65)
+  {id:46,cat:"Contracts / Leases",q:"Elements of a valid contract",a:"Offer, Acceptance, Consideration, Capacity, Legal purpose"},
+  {id:47,cat:"Contracts / Leases",q:"Statute of Frauds",a:"Real estate sale contracts must be in writing"},
+  {id:48,cat:"Contracts / Leases",q:"Lease over 1 year must be…",a:"In writing"},
+  {id:49,cat:"Contracts / Leases",q:"Specific performance",a:"Court orders contract performance"},
+  {id:50,cat:"Contracts / Leases",q:"Rescission",a:"Cancel contract; restore parties"},
+  {id:51,cat:"Contracts / Leases",q:"Liquidated damages",a:"Pre-agreed damages (often deposit)"},
+  {id:52,cat:"Contracts / Leases",q:"Void contract",a:"Never valid"},
+  {id:53,cat:"Contracts / Leases",q:"Voidable contract",a:"Valid but can be canceled by injured party"},
+  {id:54,cat:"Contracts / Leases",q:"Unenforceable contract",a:"Valid but cannot be enforced (writing defect)"},
+  {id:55,cat:"Contracts / Leases",q:"Estate for years",a:"Fixed term lease with definite end date"},
+  {id:56,cat:"Contracts / Leases",q:"Periodic tenancy",a:"Automatically renews until terminated"},
+  {id:57,cat:"Contracts / Leases",q:"Tenancy at will",a:"Indefinite, ends with notice"},
+  {id:58,cat:"Contracts / Leases",q:"Tenancy at sufferance",a:"Holdover without consent"},
+  {id:59,cat:"Contracts / Leases",q:"Sublease liability",a:"Original tenant remains liable to landlord"},
+  {id:60,cat:"Contracts / Leases",q:"Assignment differs from sublease because…",a:"Assignor transfers entire interest"},
+  {id:61,cat:"Contracts / Leases",q:"Contract breach remedy common in real estate",a:"Specific performance"},
+  {id:62,cat:"Contracts / Leases",q:"Consideration example",a:"Money, promise, service"},
+  {id:63,cat:"Contracts / Leases",q:"Meeting of the minds",a:"Mutual agreement on terms"},
+  {id:64,cat:"Contracts / Leases",q:"Lease escalation clause",a:"Rent increases over time/CPI/expenses"},
+  {id:65,cat:"Contracts / Leases",q:"Estoppel certificate",a:"Tenant confirms lease terms for lender/owner"},
+
+  // OWNERSHIP / CO-OP / CONDO (66-80)
+  {id:66,cat:"Ownership / Co-op / Condo",q:"Fee simple absolute",a:"Highest ownership interest"},
+  {id:67,cat:"Ownership / Co-op / Condo",q:"Life estate",a:"Ends upon death of measuring life"},
+  {id:68,cat:"Ownership / Co-op / Condo",q:"Tenancy in common",a:"No survivorship, inheritable"},
+  {id:69,cat:"Ownership / Co-op / Condo",q:"Joint tenancy",a:"Right of survivorship"},
+  {id:70,cat:"Ownership / Co-op / Condo",q:"Tenancy by the entirety",a:"Married couples; survivorship"},
+  {id:71,cat:"Ownership / Co-op / Condo",q:"Co-op ownership is…",a:"Personal property (shares)"},
+  {id:72,cat:"Ownership / Co-op / Condo",q:"Condo ownership is…",a:"Real property (deed)"},
+  {id:73,cat:"Ownership / Co-op / Condo",q:"Co-op documents include…",a:"Proprietary lease"},
+  {id:74,cat:"Ownership / Co-op / Condo",q:"Co-op transfer approval often requires…",a:"Board approval"},
+  {id:75,cat:"Ownership / Co-op / Condo",q:"Condo common areas owned as…",a:"Undivided interest"},
+  {id:76,cat:"Ownership / Co-op / Condo",q:"Bundle of rights includes…",a:"Possession, control, enjoyment, exclusion, disposition"},
+  {id:77,cat:"Ownership / Co-op / Condo",q:"Easement is…",a:"Right to use another's land"},
+  {id:78,cat:"Ownership / Co-op / Condo",q:"Encroachment is…",a:"Unauthorized intrusion over boundary"},
+  {id:79,cat:"Ownership / Co-op / Condo",q:"Lien is…",a:"Claim against property for debt"},
+  {id:80,cat:"Ownership / Co-op / Condo",q:"Marketable title is…",a:"Free of defects that expose buyer to litigation"},
+
+  // DEEDS / TITLE / LAND USE (81-90)
+  {id:81,cat:"Deeds / Title / Land Use",q:"General warranty deed",a:"Best protection; warrants against all defects"},
+  {id:82,cat:"Deeds / Title / Land Use",q:"Bargain and sale deed",a:"Implies title but limited warranties (NY common)"},
+  {id:83,cat:"Deeds / Title / Land Use",q:"Quitclaim deed",a:"Conveys whatever interest grantor has"},
+  {id:84,cat:"Deeds / Title / Land Use",q:"Cloud on title",a:"Defect in chain of title"},
+  {id:85,cat:"Deeds / Title / Land Use",q:"Title insurance protects against…",a:"Title defects / undiscovered claims"},
+  {id:86,cat:"Deeds / Title / Land Use",q:"Zoning is…",a:"Local land use regulation"},
+  {id:87,cat:"Deeds / Title / Land Use",q:"Building code is…",a:"Construction standards"},
+  {id:88,cat:"Deeds / Title / Land Use",q:"Variance is…",a:"Permission to deviate from zoning"},
+  {id:89,cat:"Deeds / Title / Land Use",q:"Eminent domain is…",a:"Government taking with compensation"},
+  {id:90,cat:"Deeds / Title / Land Use",q:"Police power is…",a:"Government power to regulate health/safety/welfare"},
+
+  // FINANCE / APPRAISAL / MATH (91-100)
+  {id:91,cat:"Finance / Appraisal / Math",q:"Cap rate formula",a:"NOI / Value"},
+  {id:92,cat:"Finance / Appraisal / Math",q:"Value formula",a:"NOI / Cap Rate"},
+  {id:93,cat:"Finance / Appraisal / Math",q:"NOI formula",a:"EGI − Operating Expenses"},
+  {id:94,cat:"Finance / Appraisal / Math",q:"Cash flow formula",a:"NOI − Debt service"},
+  {id:95,cat:"Finance / Appraisal / Math",q:"Cash-on-cash formula",a:"Annual cash flow / cash invested"},
+  {id:96,cat:"Finance / Appraisal / Math",q:"Debt service includes…",a:"Principal + interest"},
+  {id:97,cat:"Finance / Appraisal / Math",q:"Loan amount formula",a:"Price × LTV"},
+  {id:98,cat:"Finance / Appraisal / Math",q:"Commission formula",a:"Price × rate"},
+  {id:99,cat:"Finance / Appraisal / Math",q:"Income approach used for…",a:"Investment / income-producing property"},
+  {id:100,cat:"Finance / Appraisal / Math",q:"Cap rate increases means…",a:"Value decreases (for same NOI)"},
+];
+
+const CATEGORIES = [...new Set(ALL_CARDS.map(c => c.cat))];
+
+// ── State ──
+let deck = [];
+let currentIdx = 0;
+let revealed = false;
+let correct = [];
+let wrong = [];
+let selectedCats = new Set(CATEGORIES);
+
+// ── Init category chips ──
+const catFilter = document.getElementById('catFilter');
+CATEGORIES.forEach(cat => {
+  const chip = document.createElement('button');
+  chip.className = 'cat-chip active';
+  chip.textContent = cat.replace(' / ','/');
+  chip.onclick = () => {
+    chip.classList.toggle('active');
+    if (chip.classList.contains('active')) selectedCats.add(cat);
+    else selectedCats.delete(cat);
+    updateDeckCount();
+  };
+  catFilter.appendChild(chip);
+});
+
+function updateDeckCount() {
+  const n = ALL_CARDS.filter(c => selectedCats.has(c.cat)).length;
+  document.getElementById('deckCount').textContent = n + ' cards';
+}
+
+// ── Navigation ──
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome() { showScreen('home'); updateDeckCount(); }
+
+// ── Shuffle ──
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// ── Start ──
+function startPlay() {
+  deck = ALL_CARDS.filter(c => selectedCats.has(c.cat)).map(c => ({...c}));
+  if (deck.length === 0) return;
+  if (document.getElementById('shuffleToggle').classList.contains('on')) shuffle(deck);
+  currentIdx = 0; correct = []; wrong = []; revealed = false;
+  showScreen('play');
+  renderCard();
+}
+
+function retryWrong() {
+  if (wrong.length === 0) return;
+  deck = wrong.map(c => ({...c}));
+  shuffle(deck);
+  currentIdx = 0; correct = []; wrong = []; revealed = false;
+  showScreen('play');
+  renderCard();
+}
+
+// ── Render Card ──
+function renderCard() {
+  const card = deck[currentIdx];
+  const el = document.getElementById('card');
+  document.getElementById('cardCat').textContent = card.cat;
+  document.getElementById('cardNum').textContent = `${currentIdx + 1} / ${deck.length}`;
+  document.getElementById('cardFront').textContent = card.q;
+  document.getElementById('cardBack').textContent = card.a;
+  document.getElementById('cardBack').classList.add('hidden');
+  document.getElementById('tapHint').style.display = '';
+  document.getElementById('progressFill').style.width = ((currentIdx) / deck.length * 100) + '%';
+  revealed = false;
+  el.className = 'card flip-in';
+  el.style.transform = ''; el.style.opacity = '';
+}
+
+// ── Reveal ──
+function revealAnswer() {
+  if (revealed) return;
+  revealed = true;
+  document.getElementById('cardBack').classList.remove('hidden');
+  document.getElementById('tapHint').style.display = 'none';
+}
+
+// ── Mark ──
+function markRight() {
+  if (!revealed) revealAnswer();
+  else { correct.push(deck[currentIdx]); animateExit('right'); }
+}
+function markWrong() {
+  if (!revealed) revealAnswer();
+  else { wrong.push(deck[currentIdx]); animateExit('left'); }
+}
+
+function animateExit(dir) {
+  const el = document.getElementById('card');
+  el.classList.add(dir === 'right' ? 'exit-right' : 'exit-left');
+  setTimeout(() => { nextCard(); }, 300);
+}
+
+function nextCard() {
+  currentIdx++;
+  if (currentIdx >= deck.length) { showResults(); return; }
+  renderCard();
+}
+
+// ── Results ──
+function showResults() {
+  const total = correct.length + wrong.length;
+  const pct = total > 0 ? Math.round(correct.length / total * 100) : 0;
+  document.getElementById('scorePct').textContent = pct + '%';
+  document.getElementById('statCorrect').textContent = correct.length;
+  document.getElementById('statWrong').textContent = wrong.length;
+  document.getElementById('resultsSubtitle').textContent = `${total} cards reviewed`;
+
+  // Animate arc
+  const arc = document.getElementById('scoreArc');
+  const circ = 2 * Math.PI * 52;
+  arc.style.strokeDashoffset = circ - (circ * pct / 100);
+
+  // Wrong review list
+  const container = document.getElementById('wrongReview');
+  container.innerHTML = '';
+  if (wrong.length > 0) {
+    const h = document.createElement('h3');
+    h.textContent = `Review These ${wrong.length} Cards`;
+    container.appendChild(h);
+    wrong.forEach(c => {
+      const div = document.createElement('div');
+      div.className = 'wrong-card';
+      div.innerHTML = `<div class="wq">${c.q}</div><div class="wa">${c.a}</div>`;
+      container.appendChild(div);
+    });
+  }
+  document.getElementById('retryBtn').style.display = wrong.length > 0 ? '' : 'none';
+  document.getElementById('progressFill').style.width = '100%';
+  showScreen('results');
+}
+
+// ── Touch / Swipe on Card ──
+const cardEl = document.getElementById('card');
+const cardArea = document.getElementById('cardArea');
+let startX = 0, startY = 0, dragging = false, dx = 0;
+
+cardEl.addEventListener('touchstart', e => {
+  if (!revealed) return;
+  startX = e.touches[0].clientX;
+  startY = e.touches[0].clientY;
+  dragging = true; dx = 0;
+  cardEl.classList.add('dragging');
+}, {passive: true});
+
+cardEl.addEventListener('touchmove', e => {
+  if (!dragging) return;
+  dx = e.touches[0].clientX - startX;
+  const dy = e.touches[0].clientY - startY;
+  if (Math.abs(dy) > Math.abs(dx) && Math.abs(dx) < 20) return; // allow vertical scroll
+  const rot = dx * 0.06;
+  cardEl.style.transform = `translateX(${dx}px) rotate(${rot}deg)`;
+  const threshold = 40;
+  document.getElementById('indCorrect').style.opacity = dx > threshold ? 1 : 0;
+  document.getElementById('indWrong').style.opacity = dx < -threshold ? 1 : 0;
+}, {passive: true});
+
+cardEl.addEventListener('touchend', () => {
+  if (!dragging) return;
+  dragging = false;
+  cardEl.classList.remove('dragging');
+  document.getElementById('indCorrect').style.opacity = 0;
+  document.getElementById('indWrong').style.opacity = 0;
+  const threshold = 80;
+  if (dx > threshold) { correct.push(deck[currentIdx]); animateExit('right'); }
+  else if (dx < -threshold) { wrong.push(deck[currentIdx]); animateExit('left'); }
+  else { cardEl.style.transform = ''; }
+}, {passive: true});
+
+// Tap to reveal (only if not swiping)
+cardEl.addEventListener('click', e => {
+  if (Math.abs(dx) < 10) revealAnswer();
+});
+
+// Keyboard support
+document.addEventListener('keydown', e => {
+  const playScreen = document.getElementById('play');
+  if (!playScreen.classList.contains('active')) return;
+  if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); revealAnswer(); }
+  else if (e.key === 'ArrowRight' && revealed) markRight();
+  else if (e.key === 'ArrowLeft' && revealed) markWrong();
+});
+</script>
+</body>
+</html>
