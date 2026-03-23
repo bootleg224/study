@@ -885,6 +885,7 @@
             reviewQuestions: [],
             currentFilter: 'all',
             currentSearch: '',
+            activeTabId: 'exam1',
             state: {},
 
             init() {
@@ -897,6 +898,12 @@
                 const saved = localStorage.getItem('ny-re-quiz-state');
                 if (saved) {
                     this.state = JSON.parse(saved);
+                    // Convert flaggedForReview arrays back to Sets (JSON doesn't support Sets)
+                    Object.keys(this.state).forEach(key => {
+                        if (this.state[key].flaggedForReview && !(this.state[key].flaggedForReview instanceof Set)) {
+                            this.state[key].flaggedForReview = new Set(this.state[key].flaggedForReview);
+                        }
+                    });
                 } else {
                     this.exams.forEach(exam => {
                         this.state[exam.id] = {
@@ -928,24 +935,20 @@
                         const percent = Math.round((correct / answered) * 100);
                         badge = `<span class="badge">${percent}%</span>`;
                     }
-                    return `<button class="tab-button ${exam.themeClass}" onclick="app.switchTab('${exam.id}')">${exam.name}${badge}</button>`;
+                    const isActive = this.activeTabId === exam.id ? ' active' : '';
+                    return `<button class="tab-button ${exam.themeClass}${isActive}" onclick="app.switchTab('${exam.id}')">${exam.name}${badge}</button>`;
                 }).join('') +
-                `<button class="tab-button tab-review" onclick="app.switchTab('review')">Review<span class="badge" id="reviewBadge">0</span></button>`;
+                `<button class="tab-button tab-review${this.activeTabId === 'review' ? ' active' : ''}" onclick="app.switchTab('review')">Review<span class="badge" id="reviewBadge">0</span></button>`;
                 tabBar.innerHTML += `<style>
                   .tab-button { flex-shrink: 0; }
                 </style>`;
             },
 
             switchTab(tabId) {
-                document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-
-                event.target.closest('.tab-button').classList.add('active');
-                const content = document.getElementById(`tab-${tabId}`);
-                if (content) content.classList.add('active');
-
+                this.activeTabId = tabId;
                 this.currentFilter = 'all';
                 this.currentSearch = '';
+                this.renderTabs();
                 this.renderContent();
             },
 
@@ -959,8 +962,7 @@
 
             renderContent() {
                 const content = document.getElementById('content');
-                const activeTab = document.querySelector('.tab-button.active');
-                const tabId = activeTab?.getAttribute('onclick')?.match(/'([^']+)'/)?.[1] || 'exam1';
+                const tabId = this.activeTabId;
 
                 if (tabId === 'review') {
                     this.renderReviewTab();
@@ -1014,10 +1016,10 @@
                 </div>`;
 
                 html += `<div class="filter-pills">
-                    <button class="filter-pill active" onclick="app.setFilter('all')">All</button>
-                    <button class="filter-pill" onclick="app.setFilter('unanswered')">Unanswered</button>
-                    <button class="filter-pill" onclick="app.setFilter('correct')">Correct</button>
-                    <button class="filter-pill" onclick="app.setFilter('incorrect')">Incorrect</button>
+                    <button class="filter-pill ${this.currentFilter === 'all' ? 'active' : ''}" onclick="app.setFilter('all')">All</button>
+                    <button class="filter-pill ${this.currentFilter === 'unanswered' ? 'active' : ''}" onclick="app.setFilter('unanswered')">Unanswered</button>
+                    <button class="filter-pill ${this.currentFilter === 'correct' ? 'active' : ''}" onclick="app.setFilter('correct')">Correct</button>
+                    <button class="filter-pill ${this.currentFilter === 'incorrect' ? 'active' : ''}" onclick="app.setFilter('incorrect')">Incorrect</button>
                 </div>`;
 
                 html += `<div class="search-box">
@@ -1152,8 +1154,6 @@
 
             setFilter(filter) {
                 this.currentFilter = filter;
-                document.querySelectorAll('.filter-pill').forEach(pill => pill.classList.remove('active'));
-                event.target.classList.add('active');
                 this.renderContent();
             },
 
@@ -1226,7 +1226,6 @@
         // Initialize when DOM is ready
         document.addEventListener('DOMContentLoaded', () => {
             app.init();
-            document.querySelector('.tab-button').click();
         });
     </script>
 </body>
