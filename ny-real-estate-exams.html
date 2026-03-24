@@ -886,6 +886,7 @@
             currentFilter: 'all',
             currentSearch: '',
             activeTabId: 'exam1',
+            reviewAnswers: {},
             state: {},
 
             init() {
@@ -1083,6 +1084,10 @@
                     });
                 });
 
+                const reviewAnswered = Object.keys(this.reviewAnswers).length;
+                const reviewCorrect = Object.values(this.reviewAnswers).filter(a => a.correct).length;
+                const reviewPercent = reviewAnswered > 0 ? Math.round((reviewCorrect / reviewAnswered) * 100) : 0;
+
                 let html = `<div class="tab-content active tab-review" id="tab-review">
                     <div class="exam-header">
                         <div class="exam-title">Review Bank</div>
@@ -1091,15 +1096,31 @@
                                 <div class="stat-label">Questions</div>
                                 <div class="stat-value">${reviewItems.length}</div>
                             </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Attempted</div>
+                                <div class="stat-value">${reviewAnswered}/${reviewItems.length}</div>
+                            </div>
+                            <div class="stat-item">
+                                <div class="stat-label">Score</div>
+                                <div class="stat-value">${reviewAnswered > 0 ? reviewPercent + '%' : '—'}</div>
+                            </div>
                         </div>
                     </div>`;
+
+                if (reviewItems.length > 0) {
+                    html += `<div class="controls">
+                        <button class="control-button reset-button" onclick="app.resetReview()">Reset Review</button>
+                    </div>`;
+                }
 
                 if (reviewItems.length === 0) {
                     html += `<div class="empty-state">No questions to review yet. Keep studying!</div>`;
                 } else {
                     html += `<div class="questions-container">`;
                     reviewItems.forEach(({ exam, question: q, qId }) => {
-                        const ans = this.state[exam.id].answers[q.id];
+                        const reviewKey = `${exam.id}_${q.id}`;
+                        const ans = this.reviewAnswers[reviewKey];
+
                         html += `<div class="question-card">
                             <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 12px;">
                                 <span style="background: ${exam.color}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">
@@ -1107,8 +1128,8 @@
                                 </span>
                             </div>
                             <div class="question-header">
-                                <div class="question-badge ${ans?.correct ? 'badge-correct' : 'badge-incorrect'}">
-                                    ${ans?.correct ? '✓' : '✗'}
+                                <div class="question-badge ${!ans ? 'badge-unanswered' : ans.correct ? 'badge-correct' : 'badge-incorrect'}">
+                                    ${!ans ? '○' : ans.correct ? '✓' : '✗'}
                                 </div>
                                 <div style="flex: 1;">
                                     <div class="question-number">Question ${q.id}</div>
@@ -1117,21 +1138,23 @@
                             </div>
                             <div class="options">
                                 ${q.options.map((opt, idx) => {
-                                    const isSelected = ans?.selected === idx;
-                                    const isCorrect = idx === q.answer;
                                     let classes = 'option-button';
-                                    if (isCorrect) classes += ' correct';
-                                    if (isSelected && !isCorrect) classes += ' incorrect';
-                                    return `<button class="${classes}" onclick="app.answerQuestion('${exam.id}', ${q.id}, ${idx})" ${ans?.correct ? 'disabled' : ''}>
+                                    if (ans) {
+                                        if (idx === q.answer) classes += ' correct';
+                                        if (ans.selected === idx && !ans.correct) classes += ' incorrect';
+                                    }
+                                    return `<button class="${classes}" onclick="app.answerReview('${exam.id}', ${q.id}, ${idx})" ${ans ? 'disabled' : ''}>
                                         <div class="option-letter">${String.fromCharCode(65 + idx)}</div>
                                         <div>${opt}</div>
                                     </button>`;
                                 }).join('')}
                             </div>
-                            <button class="dont-know-button" onclick="app.dontKnow('${exam.id}', ${q.id})" ${ans?.correct ? 'disabled' : ''}>
+                            <button class="dont-know-button ${ans?.dontKnow ? 'answered' : ''}" onclick="app.dontKnowReview('${exam.id}', ${q.id})" ${ans ? 'disabled' : ''}>
                                 I Don't Know
                             </button>
-                            ${ans?.correct ? `<div class="feedback correct">✓ Correct! Removed from review.</div>` : ''}
+                            ${ans ? `<div class="feedback ${ans.correct ? 'correct' : 'incorrect'}">
+                                ${ans.correct ? '✓ Correct!' : `✗ Incorrect — the answer is ${String.fromCharCode(65 + q.answer)}`}
+                            </div>` : ''}
                         </div>`;
                     });
                     html += `</div>`;
@@ -1193,6 +1216,43 @@
                 this.state[examId].flaggedForReview.add(qId);
                 this.saveState();
                 this.renderTabs();
+                this.renderContent();
+            },
+
+            answerReview(examId, qId, selectedIdx) {
+                const exam = this.exams.find(e => e.id === examId);
+                const q = exam.questions.find(q => q.id === qId);
+                const correct = selectedIdx === q.answer;
+                const reviewKey = `${examId}_${qId}`;
+
+                this.reviewAnswers[reviewKey] = {
+                    selected: selectedIdx,
+                    correct: correct,
+                    dontKnow: false
+                };
+
+                // If they got it right in review, remove from the review bank
+                if (correct) {
+                    this.state[examId].flaggedForReview.delete(qId);
+                    this.saveState();
+                }
+
+                this.renderTabs();
+                this.renderContent();
+            },
+
+            dontKnowReview(examId, qId) {
+                const reviewKey = `${examId}_${qId}`;
+                this.reviewAnswers[reviewKey] = {
+                    selected: null,
+                    correct: false,
+                    dontKnow: true
+                };
+                this.renderContent();
+            },
+
+            resetReview() {
+                this.reviewAnswers = {};
                 this.renderContent();
             },
 
